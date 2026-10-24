@@ -1,52 +1,365 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>NNSC · Match centre</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#08131a"><title>NNSC · Match ratings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#0d1118;--panel:#171d27;--line:#2a3444;--muted:#a0aec0;--green:#42db9b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f5f7fc;font:15px system-ui,sans-serif}header{padding:24px max(20px,calc((100vw - 1200px)/2));border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}h1{font-size:22px;margin:0}h2{font-size:18px}small,.muted{color:var(--muted)}main{max-width:1200px;margin:24px auto;padding:0 20px}button,input,select{font:inherit;border:1px solid var(--line);border-radius:8px;background:#111722;color:inherit;padding:10px}button{cursor:pointer}button:hover{border-color:var(--green)}button:disabled{opacity:.5;cursor:wait}.primary{background:var(--green);color:#08291c;font-weight:750}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}.grid{display:grid;grid-template-columns:1.1fr 1fr;gap:20px}.meta{display:flex;gap:12px;flex-wrap:wrap}.meta label{display:grid;gap:6px;flex:1;min-width:100px}.meta input{width:100%}.pitch{position:relative;aspect-ratio:1/1.1;background:repeating-linear-gradient(0deg,#163b2c 0%,#163b2c 12.5%,#194330 12.5%,#194330 25%);border:1px solid #6bb78a;border-radius:10px;margin:18px 0;overflow:hidden}.pitch:before{content:'';position:absolute;inset:50% 0 auto;height:1px;background:#77a990}.pitch:after{content:'';position:absolute;width:24%;aspect-ratio:1;left:38%;top:39%;border:1px solid #77a990;border-radius:50%;pointer-events:none}.spot{position:absolute;transform:translate(-50%,-50%);width:29%;text-align:center;z-index:1}.spot strong{display:block;font-size:12px;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.badge{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:32px;padding:0 8px;border-radius:7px;background:#edca52;color:#10221d;font-size:17px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums;border:2px solid #12281e}.spot button{border:0;background:transparent;padding:0}.spot small{color:#d0f3da;display:block;font-size:11px}.roster{max-height:560px;overflow:auto}.row{display:grid;grid-template-columns:minmax(125px,1fr) 68px 54px 54px 46px 32px;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}.row input{width:100%;padding:8px 4px;text-align:center}.row input[type=radio]{width:18px}.row strong{overflow-wrap:anywhere}.row select{width:100%;padding:7px 2px}.labels{color:var(--muted);font-size:11px}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.login{max-width:440px;margin:70px auto}.login input{width:100%;margin:12px 0}#status{min-height:24px;color:var(--green);white-space:pre-wrap}.error{color:#ff9a9a!important}[hidden]{display:none!important}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px;border-bottom:1px solid var(--line)}.history{display:flex;gap:10px;overflow-x:auto}canvas{max-width:100%}@media(max-width:900px){.grid{grid-template-columns:1fr}.row{grid-template-columns:minmax(100px,1fr) 64px 50px 50px 35px 28px;font-size:13px;gap:5px}header{padding:20px}.card{padding:14px}}
+:root{
+color-scheme:dark;
+--bg:#07121a;--ink:#f4f7f3;--muted:#a8bcc0;--line:rgba(255,255,255,.13);--line-strong:rgba(255,255,255,.26);
+--gold:#f0cd8c;--gold-2:#ffe9b8;--green:#bfeed3;--mint:#6fe3b4;--aqua:#6cc8e8;--rose:#ff9d93;
+--glass:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.035));
+--glass-field:rgba(255,255,255,.07);
+--spec:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -1px 0 rgba(255,255,255,.05),inset 1px 0 0 rgba(255,255,255,.08);
+--shadow:0 30px 70px -28px rgba(0,0,0,.7),0 8px 22px -12px rgba(0,0,0,.5);
+--ease:cubic-bezier(.22,1,.36,1);
+--spring:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:wait}
+
+/* ---------- Living background ---------- */
+.aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;background:
+ radial-gradient(1200px 800px at 15% -10%,#12363f 0%,transparent 60%),
+ radial-gradient(1000px 800px at 100% 10%,#1c2f4a 0%,transparent 55%),
+ radial-gradient(900px 700px at 50% 120%,#17382f 0%,transparent 60%),#07121a}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;will-change:transform;mix-blend-mode:screen}
+.orb.o1{width:560px;height:560px;left:-120px;top:-100px;background:radial-gradient(circle at 30% 30%,#2fd6a0,#0e6b6b 70%,transparent);animation:drift1 22s ease-in-out infinite alternate}
+.orb.o2{width:520px;height:520px;right:-140px;top:12%;background:radial-gradient(circle at 60% 40%,#5aa4ff,#3a3fa0 70%,transparent);animation:drift2 27s ease-in-out infinite alternate}
+.orb.o3{width:600px;height:600px;left:25%;bottom:-260px;background:radial-gradient(circle at 50% 50%,#f0cd8c,#a8693a 65%,transparent);opacity:.32;animation:drift3 31s ease-in-out infinite alternate}
+.orb.o4{width:380px;height:380px;left:55%;top:40%;background:radial-gradient(circle,#7be8d0,transparent 70%);opacity:.22;animation:drift2 19s ease-in-out infinite alternate-reverse}
+@keyframes drift1{to{transform:translate(180px,140px) scale(1.2)}}
+@keyframes drift2{to{transform:translate(-200px,120px) scale(1.15)}}
+@keyframes drift3{to{transform:translate(160px,-120px) scale(1.25)}}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+h1,h2,h3,p{margin:0}
+h1{font-family:'Fraunces',Georgia,serif;font-size:clamp(30px,4.4vw,46px);line-height:1.05;letter-spacing:-.025em;font-weight:700;
+ background:linear-gradient(100deg,#fff 10%,var(--gold-2) 45%,var(--green) 80%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 9s ease-in-out infinite alternate}
+@keyframes shimmer{to{background-position:100% 0}}
+h2{font-size:21px;letter-spacing:-.02em;font-weight:700;display:flex;align-items:center}
+h3{font-size:16px;font-weight:650}
+small,.muted{color:var(--muted)}
+[hidden]{display:none!important}
+.wrap{max-width:1340px;margin:auto;padding:0 24px}
+
+/* ---------- Header ---------- */
+header{position:sticky;top:0;z-index:20;padding:14px 0;
+ background:linear-gradient(180deg,rgba(7,18,26,.72),rgba(7,18,26,.35));
+ backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);
+ border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(255,255,255,.06) inset;animation:dropIn .9s var(--ease) both}
+@keyframes dropIn{from{opacity:0;transform:translateY(-100%)}}
+.bar,.tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar{justify-content:space-between}
+.brand{display:inline-flex;align-items:center;gap:10px;font-size:13px;letter-spacing:.32em;color:var(--gold);font-weight:800}
+.brand:before{content:'';width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--gold) 55%,#b8893f);box-shadow:0 0 0 0 rgba(240,205,140,.6);animation:pulse 2.8s ease-out infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 14px rgba(240,205,140,0)}100%{box-shadow:0 0 0 0 rgba(240,205,140,0)}}
+.intro{padding:46px 0 26px;gap:20px}
+.intro p{color:var(--muted);margin-top:10px;font-size:16px}
+.intro>div{animation:rise .9s var(--ease) .1s both}
+.pill{border:1px solid var(--line);padding:6px 12px;border-radius:40px;font-size:12px;font-weight:600;
+ background:rgba(255,255,255,.07);backdrop-filter:blur(12px);box-shadow:var(--spec);display:inline-flex;align-items:center;gap:8px}
+#sync:before{content:'';width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+#sync.pill{color:var(--green)}
+
+/* ---------- Liquid glass surfaces ---------- */
+.card{position:relative;background:var(--glass);border:1px solid var(--line);border-radius:28px;padding:28px;margin-bottom:22px;
+ backdrop-filter:blur(30px) saturate(175%);-webkit-backdrop-filter:blur(30px) saturate(175%);
+ box-shadow:var(--spec),var(--shadow);transition:transform .6s var(--ease),border-color .4s,box-shadow .6s var(--ease)}
+.card:hover{border-color:var(--line-strong);box-shadow:var(--spec),0 40px 80px -30px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.04)}
+.card:before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .5s;
+ background:radial-gradient(520px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.14),transparent 45%)}
+.card:hover:before{opacity:1}
+.card:after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1px;
+ background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 30%,rgba(255,255,255,0) 70%,rgba(255,255,255,.22));
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55}
+#app:not([hidden]) .card,#app:not([hidden]) .footer-actions{animation:rise 1s var(--ease) both}
+#workspace>.card:nth-child(1){animation-delay:.15s!important}
+#workspace>.card:nth-child(2){animation-delay:.28s!important}
+#workspace>.card:nth-child(3){animation-delay:.4s!important}
+#app>details.card:nth-of-type(1){animation-delay:.5s!important}
+#app>details.card:nth-of-type(2){animation-delay:.6s!important}
+@keyframes rise{from{opacity:0;transform:translateY(38px) scale(.97);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.section-title p{color:var(--muted);font-size:14px;margin-top:6px;margin-left:41px}
+.number{display:inline-grid;place-items:center;width:31px;height:31px;border-radius:11px;margin-right:12px;font-size:15px;font-weight:800;color:#0c2a1e;
+ background:linear-gradient(145deg,#d8ffe9,var(--mint));box-shadow:0 6px 18px -4px rgba(111,227,180,.6),inset 0 1px 0 rgba(255,255,255,.7)}
+
+/* ---------- Controls ---------- */
+button,input,select{border:1px solid var(--line);border-radius:14px;background:var(--glass-field);padding:10px 14px;
+ transition:border-color .25s,background .25s,transform .35s var(--spring),box-shadow .3s;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+button:hover:not(:disabled){border-color:rgba(240,205,140,.7);background:rgba(255,255,255,.12);transform:translateY(-1px)}
+button:active:not(:disabled){transform:translateY(0) scale(.97)}
+input,select{min-height:46px;backdrop-filter:blur(10px)}
+input{min-width:0}
+input::placeholder{color:rgba(168,188,192,.6)}
+input:hover,select:hover{border-color:var(--line-strong)}
+input:focus,select:focus{border-color:var(--gold);background:rgba(255,255,255,.1);box-shadow:0 0 0 4px rgba(240,205,140,.16)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+select{cursor:pointer}
+option{background:#0f1f28;color:var(--ink)}
+.primary{position:relative;overflow:hidden;background:linear-gradient(135deg,#ffe9b8,var(--gold) 55%,#d9a95a);border-color:rgba(255,255,255,.5);color:#2a1d08;font-weight:800;
+ box-shadow:0 10px 30px -8px rgba(240,205,140,.6),inset 0 1px 0 rgba(255,255,255,.8)}
+.primary:hover:not(:disabled){background:linear-gradient(135deg,#fff1cf,#f6d79c 55%,#e2b468);box-shadow:0 16px 40px -8px rgba(240,205,140,.75),inset 0 1px 0 rgba(255,255,255,.9)}
+.primary:after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);transform:skewX(-20deg);animation:sheen 4.5s ease-in-out infinite}
+@keyframes sheen{0%,60%{left:-80%}100%{left:140%}}
+.soft{background:rgba(111,227,180,.14);border-color:rgba(111,227,180,.4);color:#d8f8e6}
+.soft:hover:not(:disabled){background:rgba(111,227,180,.24)}
+.danger{color:var(--rose)}
+#new,#addSub,#export,#clearPick,#signout,#retry,#closeReview,#closePicker{position:relative;overflow:hidden}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:ripple .7s var(--ease) forwards;pointer-events:none}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+
+.form{display:grid;grid-template-columns:2fr 1.15fr 1.1fr 1.1fr 1.2fr;gap:18px}
+.form label,.field{display:grid;gap:8px;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.form input,.form select,.field input{width:100%;color:var(--ink);text-transform:none;letter-spacing:0;font-weight:500;font-size:15px}
+.score-input{font-size:26px!important;font-weight:800!important;text-align:center;font-variant-numeric:tabular-nums;color:var(--gold-2)!important}
+
+/* ---------- Lineup ---------- */
+.lineup{display:grid;grid-template-columns:280px 1fr;gap:26px}
+.pool{display:flex;flex-direction:column;min-height:0}
+.pool>input{width:100%;margin:14px 0}
+.player-list{overflow:auto;max-height:640px;display:grid;gap:9px;align-content:start;padding:3px 6px 4px 2px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+.player-list::-webkit-scrollbar{width:8px}
+.player-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:8px}
+.person{display:flex;justify-content:space-between;align-items:center;text-align:left;gap:8px;padding:12px 14px;min-height:62px;width:100%;touch-action:manipulation;border-radius:16px;
+ background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03))}
+.person:hover:not(:disabled){transform:translateX(4px);box-shadow:0 10px 24px -12px rgba(0,0,0,.6)}
+.person strong{display:block;font-size:14px;overflow-wrap:anywhere;font-weight:650}
+.person small{font-size:11px;display:block;margin-top:3px}
+.person.selected{border-color:var(--gold);background:linear-gradient(145deg,rgba(240,205,140,.28),rgba(240,205,140,.08));box-shadow:0 0 0 3px rgba(240,205,140,.16),0 12px 30px -12px rgba(240,205,140,.5)}
+.person.used{background:linear-gradient(145deg,rgba(111,227,180,.2),rgba(111,227,180,.05));border-color:rgba(111,227,180,.35)}
+.used-mark{color:#0c2a1e;background:var(--mint);font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;white-space:nowrap;letter-spacing:.04em}
+.drag-help{font-size:12px;color:var(--muted);padding-top:14px}
+.field-board{min-width:0}
+.board-top{min-height:44px;font-size:14px;color:var(--green);display:flex;align-items:center;gap:10px;justify-content:space-between;font-weight:500}
+.board-top button{font-size:12px;padding:5px 10px}
+#pickHint{transition:color .3s}
+
+.pitch{position:relative;max-width:740px;aspect-ratio:1/1.01;border-radius:26px;border:1px solid rgba(255,255,255,.22);overflow:hidden;margin:10px auto 18px;
+ background:
+  radial-gradient(80% 60% at 50% 0%,rgba(255,255,255,.14),transparent 70%),
+  repeating-linear-gradient(0deg,rgba(47,140,98,.55) 0%,rgba(47,140,98,.55) 12.5%,rgba(40,124,86,.55) 12.5%,rgba(40,124,86,.55) 25%),#0f3a2b;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 0 80px rgba(0,0,0,.35),0 30px 60px -24px rgba(0,0,0,.7),0 0 70px -20px rgba(111,227,180,.35)}
+.pitch:after{content:'';position:absolute;inset:-50% auto -50% -60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.1),transparent);transform:rotate(12deg);animation:pitchSweep 9s ease-in-out infinite;pointer-events:none}
+@keyframes pitchSweep{0%,35%{left:-60%}100%{left:130%}}
+.field-lines{position:absolute;inset:16px;border:1.5px solid rgba(255,255,255,.4);border-radius:12px;pointer-events:none}
+.field-lines:before{content:'';position:absolute;top:50%;left:0;right:0;border-top:1.5px solid rgba(255,255,255,.4)}
+.field-lines:after{content:'';position:absolute;width:24%;aspect-ratio:1;top:38%;left:38%;border:1.5px solid rgba(255,255,255,.4);border-radius:50%}
+.goal-area{position:absolute;left:30%;width:40%;height:12%;border:1.5px solid rgba(255,255,255,.4);pointer-events:none}
+.goal-area.top{top:16px;border-top:0}
+.goal-area.bottom{bottom:16px;border-bottom:0}
+.slot{position:absolute;transform:translate(-50%,-50%);width:28%;min-height:88px;padding:10px 6px;text-align:center;z-index:1;touch-action:manipulation;border-radius:20px;
+ background:linear-gradient(150deg,rgba(255,255,255,.26),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.4);
+ backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 14px 30px -10px rgba(0,0,0,.6);
+ transition:transform .45s var(--spring),box-shadow .3s,border-color .3s,background .3s}
+.slot:hover:not(:disabled){transform:translate(-50%,-50%) scale(1.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 20px 40px -10px rgba(0,0,0,.7),0 0 30px rgba(240,205,140,.3);background:linear-gradient(150deg,rgba(255,255,255,.34),rgba(255,255,255,.1))}
+.slot:active:not(:disabled){transform:translate(-50%,-50%) scale(.97)}
+.slot .pos{font-size:11px;font-weight:800;color:var(--gold-2);display:block;letter-spacing:.12em}
+.slot strong{font-size:14px;display:block;overflow-wrap:anywhere;line-height:1.2;margin:5px 0;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.slot .slot-meta{font-size:12px;color:var(--gold-2);font-weight:700;font-variant-numeric:tabular-nums}
+.slot.empty{border-style:dashed;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.07);color:#dcefe3;animation:breathe 3.4s ease-in-out infinite}
+.slot.empty strong{font-weight:500;font-size:12px;opacity:.9}
+@keyframes breathe{50%{background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 26px rgba(255,255,255,.12)}}
+.slot.selected{outline:2px solid var(--gold);outline-offset:3px;box-shadow:0 0 0 7px rgba(240,205,140,.18),0 0 40px rgba(240,205,140,.4)}
+.slot.over,.bench.over{outline:2px solid var(--gold);background:linear-gradient(150deg,rgba(240,205,140,.45),rgba(240,205,140,.15));box-shadow:0 0 40px rgba(240,205,140,.5)}
+.bench{min-height:68px;padding:14px;border:1.5px dashed rgba(255,255,255,.3);border-radius:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.04);transition:background .3s,box-shadow .3s}
+.bench button{font-size:13px;border-radius:30px;padding:8px 16px;background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.05))}
+.bench .hint{color:var(--muted);font-size:13px}
+
+/* ---------- Stats ---------- */
+.stats-head,.player-main{display:grid;grid-template-columns:minmax(155px,1fr) 78px 76px 104px 104px 62px 68px 35px;gap:12px;align-items:center}
+.stats-head{font-size:11px;color:var(--muted);padding:0 16px 12px;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.player-card{border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-bottom:12px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 rgba(255,255,255,.12);transition:border-color .3s,transform .5s var(--ease),box-shadow .4s}
+.player-card:hover{border-color:var(--line-strong);transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 18px 36px -18px rgba(0,0,0,.6)}
+.player-main .name{font-size:15px;overflow-wrap:anywhere;font-weight:700}
+.player-main input,.player-main select{width:100%;padding:8px 4px;text-align:center}
+.player-main select{font-size:12px}
+.player-main .rating{font-size:21px;color:var(--mint);font-weight:800;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(111,227,180,.4)}
+.stepper{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--glass-field)}
+.stepper button{border:0;border-radius:0;background:rgba(255,255,255,.08);width:30px;min-width:30px;padding:8px 0;min-height:44px;font-size:18px;box-shadow:none}
+.stepper button:hover:not(:disabled){background:rgba(240,205,140,.3);transform:none}
+.stepper button:active:not(:disabled){background:rgba(240,205,140,.5)}
+.stepper input{border:0;border-radius:0;min-width:0;padding:8px 0;-moz-appearance:textfield;background:transparent;box-shadow:none;font-weight:700;font-variant-numeric:tabular-nums}
+.stepper input::-webkit-inner-spin-button{appearance:none}
+.motm{font-size:23px;padding:4px;min-height:44px;color:var(--muted)}
+.motm.on{background:linear-gradient(145deg,rgba(255,218,128,.5),rgba(255,218,128,.15));color:#ffe29a;border-color:rgba(255,218,128,.8);box-shadow:0 0 28px rgba(255,218,128,.4);animation:pop .5s var(--spring)}
+@keyframes pop{0%{transform:scale(.7) rotate(-20deg)}100%{transform:none}}
+.more{font-size:12px;padding:10px 6px;font-weight:600}
+.remove{border:0;background:none;font-size:24px;padding:3px;color:#b6c7cb;box-shadow:none}
+.remove:hover:not(:disabled){color:var(--rose);background:none;transform:rotate(90deg) scale(1.1)}
+.extras{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:18px 0 6px;border-top:1px solid var(--line);margin-top:16px;animation:expand .5s var(--ease)}
+@keyframes expand{from{opacity:0;transform:translateY(-10px)}}
+.extras label{display:grid;gap:6px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.extras input{width:100%}
+.empty-state{text-align:center;padding:40px 16px;color:var(--muted);border:1.5px dashed var(--line);border-radius:20px;background:rgba(255,255,255,.03)}
+.summary-line{font-size:14px;color:var(--green);padding-top:10px;font-weight:600}
+
+/* ---------- Review ---------- */
+.review{display:grid;gap:0;margin-top:6px}
+.review-row{padding:14px 4px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:20px}
+.review-row small{display:block}
+.review-row>strong{font-size:22px;color:var(--mint);font-variant-numeric:tabular-nums}
+.review-score{font-family:'Fraunces',Georgia,serif;font-size:clamp(24px,4vw,32px);font-weight:700;margin:14px 0 18px;color:var(--gold-2)}
+
+/* ---------- Floating action bar ---------- */
+.footer-actions{position:sticky;bottom:14px;z-index:15;margin-top:8px;background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.05)),rgba(10,24,32,.5);
+ border:1px solid rgba(255,255,255,.22);border-radius:26px;padding:14px 18px 14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+ backdrop-filter:blur(32px) saturate(190%);-webkit-backdrop-filter:blur(32px) saturate(190%);
+ box-shadow:var(--spec),0 24px 60px -16px rgba(0,0,0,.8);animation-delay:.7s!important}
+.footer-actions .tools{justify-content:flex-end}
+.footer-actions small{display:block;font-size:12px}
+#saveState{font-size:14px}
+.footer-actions .primary{padding:12px 22px}
+
+summary{cursor:pointer;font-weight:700;font-size:17px;list-style:none;display:flex;align-items:center;gap:12px;transition:color .3s}
+summary::-webkit-details-marker{display:none}
+summary:before{content:'';width:9px;height:9px;border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(-45deg);transition:transform .45s var(--spring);margin:0 4px 0 2px}
+details[open]>summary:before{transform:rotate(45deg)}
+summary:hover{color:var(--gold-2)}
+details.card[open]>summary{margin-bottom:20px}
+details>*:not(summary){animation:expand .55s var(--ease)}
+.history-list{display:grid;gap:10px}
+.history-list button{text-align:left;padding:15px 18px;border-radius:16px;font-weight:550;background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03))}
+.history-list button:hover:not(:disabled){transform:translateX(6px)}
+.totals{width:100%;border-collapse:collapse;margin-top:16px}
+.totals td{padding:13px 12px;border-bottom:1px solid var(--line)}
+.totals td:last-child{text-align:right;font-weight:800;color:var(--gold-2);font-variant-numeric:tabular-nums;font-size:17px}
+.totals tr{transition:background .25s}
+.totals tr:hover{background:rgba(255,255,255,.05)}
+
+/* ---------- Login ---------- */
+.login{max-width:540px;margin:9vh auto;text-align:center;padding:48px 40px;animation:rise 1.1s var(--ease) both}
+.login h1{font-size:clamp(32px,6vw,42px)}
+.login p{margin:16px 0 28px;color:var(--muted);font-size:16px}
+.login .primary{padding:14px 34px;font-size:16px;border-radius:18px}
+
+/* ---------- Toast ---------- */
+#status{position:relative;padding:14px 20px;background:linear-gradient(145deg,rgba(111,227,180,.2),rgba(111,227,180,.06));border:1px solid rgba(111,227,180,.4);border-radius:18px;margin:22px 0 0;white-space:pre-line;
+ backdrop-filter:blur(24px) saturate(170%);box-shadow:var(--spec),0 16px 40px -16px rgba(0,0,0,.6);color:#dcf8e8;animation:toast .6s var(--spring) both}
+#status.error{background:linear-gradient(145deg,rgba(255,157,147,.24),rgba(255,157,147,.07));border-color:rgba(255,157,147,.5);color:#ffd9d4}
+@keyframes toast{from{opacity:0;transform:translateY(-18px) scale(.94)}}
+
+/* ---------- Dialogs ---------- */
+.dialog{position:fixed;inset:0;z-index:50;background:rgba(3,10,14,.55);backdrop-filter:blur(14px) saturate(130%);-webkit-backdrop-filter:blur(14px) saturate(130%);display:grid;place-items:center;padding:18px;animation:fade .35s ease both}
+@keyframes fade{from{opacity:0}}
+.dialog-box{width:min(640px,100%);max-height:90vh;overflow:auto;border-radius:30px;padding:30px;
+ background:linear-gradient(145deg,rgba(255,255,255,.2),rgba(255,255,255,.06)),rgba(14,30,40,.7);border:1px solid rgba(255,255,255,.28);
+ backdrop-filter:blur(40px) saturate(190%);-webkit-backdrop-filter:blur(40px) saturate(190%);
+ box-shadow:var(--spec),0 50px 120px -20px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.04);animation:dialogIn .6s var(--spring) both;scrollbar-width:thin}
+@keyframes dialogIn{from{opacity:0;transform:translateY(40px) scale(.9);filter:blur(8px)}}
+.dialog .player-list{max-height:48vh}
+.dialog input[type=search]{width:100%;margin:16px 0}
+.dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:22px}
+.mobile-label{display:none}
+.saving{pointer-events:none;opacity:.6;filter:saturate(.7);transition:opacity .4s}
+
+@media(max-width:1050px){.stats-head,.player-main{grid-template-columns:minmax(135px,1fr) 70px 66px 90px 90px 50px 60px 28px;gap:7px}.stepper button{width:26px;min-width:26px}.lineup{grid-template-columns:230px 1fr}.form{grid-template-columns:2fr 1.2fr 1fr}.form label:first-child{grid-column:1/3}.card{padding:22px}}
+@media(max-width:740px){.wrap{padding:0 14px}header{padding:11px 0}.intro{padding:30px 0 18px}.card{padding:18px;border-radius:24px}.section-title p{margin-left:0}.lineup{display:flex;flex-direction:column}.pool{order:0}.player-list{max-height:220px;grid-template-columns:1fr 1fr}.person{padding:9px 11px;min-height:57px}.person strong{font-size:12px}.drag-help{display:none}.board-top{font-size:12px}.pitch{width:100%;aspect-ratio:1/1.1}.slot{min-height:76px;padding:6px 4px;border-radius:16px}.slot strong{font-size:11px}.slot .pos{font-size:10px}.slot .slot-meta{font-size:11px}.slot.empty strong{font-size:10px}.form{grid-template-columns:1fr 1fr;gap:14px}.form label:first-child{grid-column:1/-1}.form label:last-child{grid-column:1/-1}.stats-head{display:none}.player-main{grid-template-columns:repeat(5,1fr);gap:9px}.player-main>.name{grid-column:1/5;margin-bottom:5px;font-size:16px}.player-main>.remove{grid-column:5;grid-row:1;text-align:right}.player-main>.cell{min-width:0}.mobile-label{display:block;font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}.player-main .motm{width:100%}.more{grid-column:1/-1;min-height:38px}.stepper button{width:24px;min-width:24px}.stepper input{font-size:13px}.extras{grid-template-columns:1fr 1fr}.footer-actions{padding:12px;align-items:flex-start;bottom:8px;border-radius:22px}.footer-actions .tools{gap:7px}.footer-actions button{font-size:12px;padding:10px}.footer-actions small{max-width:140px}.review-row{gap:10px}.review-row strong{overflow-wrap:anywhere}.bar .tools{gap:7px}.bar button{font-size:12px}.section-title{align-items:flex-start}.section-title .tools{justify-content:flex-end}.orb{filter:blur(50px)}.login{padding:36px 24px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style></head><body>
-<header><div><h1>NNSC <span style="color:var(--green)">Match centre</span></h1><small>Competitive games · Academy</small></div><small id="sync">Secure admin workspace</small></header>
-<main><div id="status" role="status"></div>
-<section id="login" class="card login"><h2>Private admin access</h2><p class="muted">Run <b>/ratings</b> in Discord and open your personal DM link. You will sign in automatically. Only the designated game-stats admin role can access the match centre.</p><button id="loginRetry" hidden>Try connecting again</button></section>
-<section id="app" hidden>
-<div class="card"><div class="meta"><label>Opponent<input id="opponent" maxlength="100" placeholder="Opponent club"></label><label>Match date<input id="date" type="date"></label><label>NNSC goals<input id="ours" type="number" min="0" max="100" value="0"></label><label>Opponent goals<input id="theirs" type="number" min="0" max="100" value="0"></label><label>Formation<select id="formation" aria-label="Formation"><option>2-2-2</option><option>3-1-2</option><option>3-0-3</option><option>2-1-3</option></select></label></div></div>
-<div class="grid"><div class="card"><h2>Match ratings</h2><p class="muted">Choose a player’s position below. Only actual participants count as a game played.</p><div id="pitch" class="pitch"></div><div class="tools"><button id="export">Download ratings image</button><button id="new">New game</button></div><small id="matchId"></small></div>
-<div class="card"><h2>Players who played</h2><div class="tools"><input id="search" placeholder="Search onboarded players" aria-label="Search players"><select id="add" aria-label="Select player"></select><button id="addButton">Add player</button></div><div class="row labels"><span>Player / position</span><span>Rating</span><span>Goals</span><span>Assists</span><span>MOTM</span><span></span></div><div id="roster" class="roster"></div><div class="tools"><button id="publish" class="primary">Save game & publish results</button><button id="clearMotm">Clear MOTM</button></div><p class="muted">An unused substitute should not be added. Saving edits to this game replaces its stats; it does not create another game.</p></div></div>
-<div class="card"><h2>Saved games</h2><div id="history" class="history"></div></div>
-<div class="card"><h2>Competitive leaders</h2><select id="category"><option value="ga">G/A</option><option value="goals">Goals</option><option value="assists">Assists</option><option value="motms">MOTMs</option><option value="games">Games played</option></select><table><thead><tr><th>Player</th><th>Total</th></tr></thead><tbody id="leaders"></tbody></table></div>
-<details class="card"><summary>Admin corrections / historical totals</summary><p class="muted">Enter a signed adjustment: +5 adds five; -1 removes one. Historical games cannot be inferred from goals or assists. Corrections keep an admin audit record.</p><form id="adjustForm" class="meta"><select id="adjustPlayer" required></select><select id="adjustCat"><option value="goals">Goals</option><option value="assists">Assists</option><option value="motms">MOTMs</option><option value="games">Games played</option></select><input id="adjustAmount" type="number" min="-10000" max="10000" required placeholder="+/- amount"><input id="reason" required maxlength="500" placeholder="Reason / historical baseline"><button>Save correction</button></form></details>
-</section></main>
+<div class="aurora" aria-hidden="true"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div></div><div class="grain" aria-hidden="true"></div>
+<header><div class="wrap bar"><div><span class="brand">NNSC</span> <span class="muted">/ Match ratings</span></div><div class="tools"><span id="sync" class="pill">Not connected</span><button id="signout" hidden>Sign out</button></div></div></header>
+<main class="wrap"><div id="status" role="status" aria-live="polite" hidden></div>
+<section id="login" class="card login"><h1>Match ratings, made easy.</h1><p>Open your personal <strong>/ratings</strong> link from Discord to enter a match. Your existing staff permissions still apply.</p><button id="retry" class="primary">Connect</button></section>
+<div id="app" hidden><div class="intro bar"><div><h1 id="pageTitle">Record a match</h1><p>Place your players. Enter their numbers. Publish.</p></div><button id="new">＋ New match</button></div>
+<div id="workspace">
+<section class="card"><div class="section-title"><h2><span class="number">1</span>Match details</h2><span id="editBadge" class="pill">New match</span></div><div class="form"><label>Opponent<input id="opponent" maxlength="100" placeholder="Who did we play?" autocomplete="off"></label><label>Date<input id="date" type="date"></label><label>NNSC score<input id="ours" class="score-input" type="number" min="0" max="100" value="0"></label><label>Opponent score<input id="theirs" class="score-input" type="number" min="0" max="100" value="0"></label><label>Formation<select id="formation"><option>3-1-2</option><option>2-2-2</option><option>3-0-3</option><option>2-1-3</option></select></label></div></section>
+<section class="card" id="lineupSection"><div class="section-title"><div><h2><span class="number">2</span>Place your players</h2><p>Drag a name onto the pitch. On a phone, tap a name and then a position.</p></div><button id="clearPick" hidden>Clear selection</button></div><div class="lineup"><aside class="pool"><div class="bar"><h3>Club players</h3><small id="poolCount"></small></div><input id="search" type="search" placeholder="Search a player…" aria-label="Search club players" autocomplete="off"><div id="pool" class="player-list"></div><p class="drag-help">Already placed? Drag them to another spot to move or swap them.</p></aside><div class="field-board"><div class="board-top"><span id="pickHint" role="status">Tap any empty position to choose a player.</span><small id="selectedCount">0 players</small></div><div id="pitch" class="pitch"><div class="field-lines"></div><div class="goal-area top"></div><div class="goal-area bottom"></div></div><div class="bar" style="margin-bottom:8px"><h3>Substitutes who played</h3><button id="addSub">＋ Add substitute</button></div><div id="bench" class="bench" aria-label="Substitutes drop area"></div></div></div></section>
+<section class="card" id="statsSection"><div class="section-title"><div><h2><span class="number">3</span>Ratings & stats</h2><p>Type a rating, use + / − for goals and assists, and choose one player of the match.</p></div></div><div class="stats-head" aria-hidden="true"><span>Player</span><span>Position</span><span>Rating</span><span>Goals</span><span>Assists</span><span>MOTM</span><span></span><span></span></div><div id="rows"></div><p id="statsSummary" class="summary-line"></p></section>
+</div>
+<details class="card" id="historySection"><summary>Saved matches · edit an older game</summary><input id="historySearch" type="search" placeholder="Find an opponent or date" aria-label="Search saved matches" style="width:100%;margin-bottom:14px"><div id="history" class="history-list"></div></details>
+<details class="card"><summary>Club totals & corrections</summary><div class="tools"><label for="category">Leaderboard</label><select id="category"><option value="ga">Goals + assists</option><option value="goals">Goals</option><option value="assists">Assists</option><option value="motms">Player of the match</option><option value="games">Games played</option></select></div><table class="totals"><tbody id="leaders"></tbody></table><details style="margin-top:22px"><summary>Correct a total or add historical stats</summary><p class="muted" style="margin:12px 0">Use a positive number to add, or a negative number to subtract. Include a reason.</p><form id="adjustForm" class="form"><label>Player<select id="adjustPlayer" required></select></label><label>Stat<select id="adjustCat"><option value="goals">Goals</option><option value="assists">Assists</option><option value="motms">MOTM awards</option><option value="games">Games played</option></select></label><label>Change<input id="adjustAmount" type="number" min="-10000" max="10000" placeholder="e.g. -1" required></label><label style="grid-column:1/-1">Reason<input id="reason" required maxlength="500" placeholder="Why is this being corrected?"></label><button class="soft">Save correction</button></form></details></details>
+<div class="footer-actions"><div><strong id="saveState">Draft saved on this browser</strong><small id="footerHint">Nothing publishes until you confirm.</small></div><div class="tools"><button id="export">Download image</button><button id="reviewButton" class="primary">Review & publish →</button></div></div>
+</div></main>
+<div id="pickerDialog" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="pickerTitle"><div class="dialog-box"><div class="bar"><h2 id="pickerTitle">Choose a player</h2><button id="closePicker" aria-label="Close player selection">✕</button></div><input id="pickerSearch" type="search" placeholder="Search a name…" aria-label="Search player for position"><div id="pickerList" class="player-list"></div></div></div>
+<div id="reviewDialog" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="reviewTitle"><div class="dialog-box"><h2 id="reviewTitle">Check your match</h2><div id="reviewScore" class="review-score"></div><div id="reviewList" class="review"></div><p id="reviewNote" class="muted" style="margin-top:16px"></p><div class="dialog-actions"><button id="closeReview">Keep editing</button><button id="publish" class="primary">Publish to Discord</button></div></div></div>
 <script>
 'use strict';
-const $=id=>document.getElementById(id), params=new URLSearchParams(location.search), fragment=new URLSearchParams(location.hash.slice(1));
-let API=params.get('api')||location.origin, loginToken=fragment.get('login')||'', session='', state={profiles:[],matches:[],totals:{}}, players=[], mid=crypto.randomUUID(), revision=0, busy=false, changed=false, rosterProfileSignature='';
+const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),fragment=new URLSearchParams(location.hash.slice(1));
+const defaultBackend='https://nnsc-academy-bot.tail1b55aa.ts.net';
+let API=params.get('api')||(location.hostname.endsWith('github.io')||location.protocol==='file:'?defaultBackend:location.origin);
+try{const u=new URL(API);if(u.protocol!=='https:'&&!(u.protocol==='http:'&&['localhost','127.0.0.1'].includes(u.hostname)))throw Error();API=u.origin}catch(e){API=''}
+let loginToken=fragment.get('login')||'',session='',actor='',state={profiles:[],matches:[],totals:{}},players=[],mid=crypto.randomUUID(),revision=0,picked='',pickerPosition='',busy=false,changed=false,lastSaved='',draftTimer,refreshing=false,returnFocus=null,dragging=false;
 history.replaceState(null,'',location.pathname+location.search);
-try{const u=new URL(API);if(u.protocol!=='https:'&&!(u.protocol==='http:'&&['localhost','127.0.0.1'].includes(u.hostname)))throw Error();API=u.origin}catch(e){API='';notice('Invalid backend address.',true)}
 const formations={'2-2-2':['GK','LCB','RCB','CDM','CAM','LW','RW'],'3-1-2':['GK','LB','CB','RB','CM','LW','RW'],'3-0-3':['GK','LB','CB','RB','LW','ST','RW'],'2-1-3':['GK','LCB','RCB','CM','LW','ST','RW']};
-const coords={GK:[50,89],LB:[18,70],LCB:[32,70],CB:[50,70],RCB:[68,70],RB:[82,70],CDM:[50,56],CM:[50,49],CAM:[50,37],LW:[22,19],ST:[50,19],RW:[78,19]};
-function notice(msg,error=false){$('status').textContent=msg;$('status').className=error?'error':''}
-function elem(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e}
-function color(r){return r>=9?'#54bdfb':r>=8?'#42db9b':r>=7?'#a9df57':r>=6?'#edca52':r>=5?'#f5a05c':'#f27772'}
-async function call(path,method='GET',data){const response=await fetch(API+'/api/'+path,{method,headers:{'Content-Type':'application/json',...(session?{'Authorization':'Bearer '+session}:{})},...(data?{body:JSON.stringify(data)}:{})});const text=await response.text();let result;try{result=JSON.parse(text)}catch(e){result={error:text}}if(!response.ok)throw Error(result.error||'Request failed');return result}
-async function signIn(){try{if(!session){const result=await call('login','POST',{token:loginToken});session=result.session;loginToken='';}await refresh();$('login').hidden=true;$('app').hidden=false;restoreDraft();notice('Connected. Your saved actions are recorded in the Discord audit log. Onboarding profiles refresh every 10 seconds.')}catch(e){$('loginRetry').hidden=false;notice(e.message==='Failed to fetch'?'Cannot reach the ratings backend. Check the Funnel address and try again.':e.message,true)}}
-$('loginRetry').onclick=signIn;
-async function refresh(){state=await call('state');for(const p of players){const profile=state.profiles.find(x=>x.id===p.id);if(profile)p.name=profile.roblox_username}renderChoices();renderLeaders();renderHistory();renderPitch();if(rosterProfileSignature!==JSON.stringify(state.profiles.map(p=>[p.id,p.roblox_username,p.prefs]))&&!$('roster').contains(document.activeElement))renderRoster();$('sync').textContent='Profiles synced '+new Date().toLocaleTimeString()}
-function renderChoices(){const selected=$('add').value,adjustSelected=$('adjustPlayer').value,query=$('search').value.toLowerCase();$('add').replaceChildren();$('adjustPlayer').replaceChildren();for(const p of [...state.profiles].sort((a,b)=>a.roblox_username.localeCompare(b.roblox_username))){const label=p.roblox_username+' · '+p.prefs.join('/');const correction=elem('option',label);correction.value=p.id;$('adjustPlayer').append(correction);if(!players.some(x=>x.id===p.id)&&label.toLowerCase().includes(query)){const o=elem('option',label);o.value=p.id;$('add').append(o)}}if([...$('add').options].some(x=>x.value===selected))$('add').value=selected;if([...$('adjustPlayer').options].some(x=>x.value===adjustSelected))$('adjustPlayer').value=adjustSelected}
-$('search').oninput=renderChoices;
-$('addButton').onclick=()=>{const p=state.profiles.find(x=>x.id===$('add').value);if(!p)return;players.push({id:p.id,name:p.roblox_username,position:'SUB',rating:6,goals:0,assists:0,motm:false});changed=true;render()};
-function render(){renderChoices();renderRoster();renderPitch();$('matchId').textContent='Game '+mid+' · revision '+revision+(changed?' · unsaved changes':'')}
-function renderRoster(){rosterProfileSignature=JSON.stringify(state.profiles.map(p=>[p.id,p.roblox_username,p.prefs]));const root=$('roster');root.replaceChildren();for(const p of players){const row=elem('div',undefined,'row'),name=elem('div');name.append(elem('strong',p.name));const select=elem('select');select.setAttribute('aria-label',p.name+' position');for(const pos of ['SUB',...formations[$('formation').value]]){const o=elem('option',pos);o.value=pos;select.append(o)}if(![...select.options].some(o=>o.value===p.position)){const o=elem('option',p.position);select.append(o)}select.value=p.position;select.onchange=()=>{p.position=select.value;changed=true;renderPitch()};name.append(select);row.append(name);for(const key of ['rating','goals','assists']){const input=elem('input');input.type='number';input.min=0;input.max=key==='rating'?10:100;input.step=key==='rating'?'.1':'1';input.value=p[key];input.setAttribute('aria-label',p.name+' '+key);input.oninput=()=>{p[key]=Number(input.value);changed=true;renderPitch()};row.append(input)}const motm=elem('input');motm.type='radio';motm.name='motm';motm.checked=p.motm;motm.setAttribute('aria-label',p.name+' MOTM');motm.onchange=()=>{players.forEach(x=>x.motm=x.id===p.id);changed=true;render()};row.append(motm);const remove=elem('button','×');remove.setAttribute('aria-label','Remove '+p.name);remove.onclick=()=>{players=players.filter(x=>x.id!==p.id);changed=true;render()};row.append(remove);root.append(row);const details=elem('details');details.append(elem('summary','Cards, penalties & minutes'));const extras=elem('div',undefined,'tools');for(const [key,label] of [['yellowCards','Yellow cards'],['redCards','Red cards'],['ownGoals','Own goals'],['missedPenalties','Missed penalties'],['penaltySaves','Penalty saves'],['minuteIn','Minute in'],['minuteOut','Minute out']]){const wrapper=elem('label',label+' '),input=elem('input');input.type='number';input.min=0;input.max=key.startsWith('minute')?120:100;input.step=1;input.style.width='62px';input.value=p[key]??(key==='minuteOut'?90:0);input.setAttribute('aria-label',p.name+' '+label);input.oninput=()=>{p[key]=Number(input.value);changed=true};wrapper.append(input);extras.append(wrapper)}details.append(extras);root.append(details)}}
-function renderPitch(){const pitch=$('pitch');pitch.replaceChildren();for(const pos of formations[$('formation').value]){const [x,y]=coords[pos],p=players.find(p=>p.position===pos),spot=elem('div',undefined,'spot');spot.style.left=x+'%';spot.style.top=y+'%';const badge=elem('span',p?p.rating.toFixed(1):'—','badge');badge.style.background=p?color(p.rating):'#c4ddd0';spot.append(badge,elem('strong',p?p.name:'OPEN'),elem('small',pos+(p&&p.motm?' · ★':'')+(p&&p.goals?' · '+p.goals+'G':'')+(p&&p.assists?' · '+p.assists+'A':'')));pitch.append(spot)}}
-$('formation').onchange=()=>{players.forEach(p=>{if(!formations[$('formation').value].includes(p.position))p.position='SUB'});changed=true;render()};$('clearMotm').onclick=()=>{players.forEach(p=>p.motm=false);changed=true;render()};
-function renderLeaders(){const cat=$('category').value,root=$('leaders');root.replaceChildren();for(const [id,t] of Object.entries(state.totals).filter(([id,t])=>t[cat]>0).sort((a,b)=>b[1][cat]-a[1][cat])){const p=state.profiles.find(x=>x.id===id),row=elem('tr');row.append(elem('td',p?p.roblox_username:id),elem('td',String(t[cat])));root.append(row)}}$('category').onchange=renderLeaders;
-function renderHistory(){const root=$('history');root.replaceChildren();for(const m of state.matches){const b=elem('button',m.date+' · '+m.opponent+' · '+m.score.join('–'));b.onclick=async()=>{if(changed&&!confirm('Discard unsaved edits and load this game?'))return;try{await call('action','POST',{action:'match_opened',match_id:m.id});}catch(e){notice(e.message,true);return;}mid=m.id;revision=m.revision;players=m.players.map(p=>({...p}));$('formation').value=m.formation||'2-2-2';$('opponent').value=m.opponent;$('date').value=m.date;$('ours').value=m.score[0];$('theirs').value=m.score[1];changed=false;render();notice('Editing an existing game. Saving replaces this game’s totals.')};root.append(b)}}
-function saveDraft(){if(!session)return;localStorage.setItem('nnscCompetitiveDraft',JSON.stringify({mid,revision,players,changed,opponent:$('opponent').value,date:$('date').value,ours:$('ours').value,theirs:$('theirs').value,formation:$('formation').value}))}
-function restoreDraft(){try{const d=JSON.parse(localStorage.getItem('nnscCompetitiveDraft'));if(!d||!Array.isArray(d.players))return;mid=d.mid;revision=d.revision;players=d.players;changed=d.changed;for(const id of ['opponent','date','ours','theirs','formation'])$(id).value=d[id];render()}catch(e){notice('Saved draft could not be restored.',true)}}
-function reset(nextId=crypto.randomUUID()){mid=nextId;revision=0;players=[];changed=false;$('opponent').value='';$('date').value=new Date().toLocaleDateString('en-CA');$('ours').value=0;$('theirs').value=0;render()}
-$('new').onclick=async()=>{if(changed&&!confirm('Discard unsaved edits?'))return;try{const nextId=crypto.randomUUID();await call('action','POST',{action:'draft_started',match_id:nextId});reset(nextId)}catch(e){notice(e.message,true)}};
-for(const id of ['opponent','date','ours','theirs'])$(id).oninput=()=>changed=true;
-$('publish').onclick=async()=>{if(busy)return;if(revision===0&&state.matches.some(m=>m.date===$('date').value&&m.opponent.toLowerCase()===$('opponent').value.trim().toLowerCase())&&!confirm('A game against this opponent on this date already exists. Create a separate game anyway?'))return;busy=true;$('publish').disabled=true;try{const data={id:mid,revision,opponent:$('opponent').value,date:$('date').value,score:[Number($('ours').value),Number($('theirs').value)],formation:$('formation').value,players};const result=await call('match','POST',data);revision=result.revision;changed=false;await refresh();render();notice(result.message+' Games played counts each selected participant once.')}catch(e){notice(e.message,true)}finally{busy=false;$('publish').disabled=false}};
-$('adjustForm').onsubmit=async e=>{e.preventDefault();try{const result=await call('adjust','POST',{id:$('adjustPlayer').value,category:$('adjustCat').value,amount:Number($('adjustAmount').value),reason:$('reason').value});await refresh();notice(result.message)}catch(e){notice(e.message,true)}};
-$('export').onclick=async()=>{try{await call('action','POST',{action:'image_export',match_id:mid});}catch(e){notice(e.message,true);return;}const canvas=document.createElement('canvas');canvas.width=1000;canvas.height=1200;const ctx=canvas.getContext('2d');ctx.fillStyle='#0d1118';ctx.fillRect(0,0,1000,1200);ctx.fillStyle='#fff';ctx.font='bold 30px sans-serif';ctx.textAlign='center';ctx.fillText('NNSC '+$('ours').value+'–'+$('theirs').value+' '+$('opponent').value,500,60);ctx.font='18px sans-serif';ctx.fillText($('date').value,500,95);ctx.fillStyle='#194330';ctx.fillRect(30,125,940,900);ctx.strokeStyle='#78a88e';ctx.strokeRect(30,125,940,900);ctx.beginPath();ctx.moveTo(30,575);ctx.lineTo(970,575);ctx.stroke();for(const p of players.filter(p=>p.position!=='SUB')){const xy=coords[p.position];if(!xy)continue;const x=30+xy[0]*9.4,y=125+xy[1]*9;ctx.fillStyle=color(p.rating);ctx.fillRect(x-30,y-22,60,40);ctx.fillStyle='#10221d';ctx.font='bold 23px sans-serif';ctx.fillText(p.rating.toFixed(1),x,y+6);ctx.fillStyle='#fff';ctx.font='16px sans-serif';ctx.fillText(p.name+(p.motm?' ★':''),x,y+42,250);ctx.fillText(p.position,x,y+64)}ctx.fillStyle='#fff';ctx.font='18px sans-serif';players.filter(p=>p.position==='SUB').forEach((p,n)=>ctx.fillText('SUB · '+p.name+' · '+p.rating.toFixed(1),500,1060+n*25));const a=document.createElement('a');a.download='nnsc-'+mid+'.png';a.href=canvas.toDataURL();a.click()};
-setInterval(async()=>{if(!session||busy||document.hidden)return;try{await refresh()}catch(e){notice('Sync paused: '+e.message,true)}},10000);
-window.addEventListener('beforeunload',saveDraft);setInterval(saveDraft,2000);reset();
-if(loginToken)signIn();
+const coords={GK:[50,88],LB:[17,67],LCB:[32,67],CB:[50,67],RCB:[68,67],RB:[83,67],CDM:[50,53],CM:[50,46],CAM:[50,35],LW:[22,15],ST:[50,15],RW:[78,15]};
+const extras=[['yellowCards','Yellow cards'],['redCards','Red cards'],['ownGoals','Own goals'],['missedPenalties','Penalties missed'],['penaltySaves','Penalties saved'],['minuteIn','Came on · minute'],['minuteOut','Went off · minute']];
+function el(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e}
+function notice(text,error=false){$('status').textContent=text;$('status').className=error?'error':'';$('status').hidden=!text}
+function defaults(profile){return {id:String(profile.id),name:profile.roblox_username,position:'SUB',rating:6,goals:0,assists:0,motm:false,yellowCards:0,redCards:0,ownGoals:0,missedPenalties:0,penaltySaves:0,minuteIn:0,minuteOut:90}}
+function draftKey(){return 'nnscRatingsDraft:'+API+':'+actor}
+function saveDraft(){if(!session)return;try{localStorage.setItem(draftKey(),JSON.stringify(payload(true)));lastSaved=new Date().toLocaleTimeString();$('saveState').textContent=changed?'Unsaved match · draft stored':'All changes published'}catch(e){$('saveState').textContent='Browser draft storage unavailable'}}
+function mark(){changed=true;$('saveState').textContent='Unsaved changes';clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,350);updateSummary()}
+function payload(draft=false){return {id:mid,mid,revision,opponent:$('opponent').value.trim(),date:$('date').value,score:[Number($('ours').value),Number($('theirs').value)],formation:$('formation').value,players:players.map(p=>({...p})),...(draft?{changed}: {})}}
+async function api(path,method='GET',data){if(!API)throw Error('Invalid backend address. Open a fresh /ratings link.');const r=await fetch(API+'/api/'+path,{method,headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session}:{})},...(data?{body:JSON.stringify(data)}:{})});let result;try{result=await r.json()}catch(e){throw Error('The bot returned HTTP '+r.status+'. Check that you opened your /ratings link.')}if(!r.ok)throw Error(result.error||('Request failed ('+r.status+'). Open a fresh /ratings link if your session expired.'));return result}
+async function signIn(){if(busy)return;busy=true;$('retry').disabled=true;try{if(loginToken){const p=await api('login','POST',{token:loginToken});session=p.session;actor=p.actor;loginToken='';sessionStorage.setItem('nnscRatingsSession:'+API,JSON.stringify({session,actor}))}else{const saved=JSON.parse(sessionStorage.getItem('nnscRatingsSession:'+API)||'null');if(!saved)throw Error('Run /ratings in Discord and open your personal link.');session=saved.session;actor=saved.actor}await refresh();$('login').hidden=true;$('app').hidden=false;$('signout').hidden=false;restoreDraft();notice('Connected. Place players on the pitch to get started.')}catch(e){notice(e.message==='Failed to fetch'?'Cannot reach the bot. Check your connection and open a fresh /ratings link.':e.message,true)}finally{busy=false;$('retry').disabled=false}}
+$('retry').onclick=signIn;$('signout').onclick=()=>{saveDraft();sessionStorage.removeItem('nnscRatingsSession:'+API);session='';actor='';$('app').hidden=true;$('login').hidden=false;$('signout').hidden=true;$('sync').textContent='Signed out';notice('Signed out.')};
+async function refresh(){if(refreshing||dragging)return;refreshing=true;try{state=await api('state');state.profiles=state.profiles.map(p=>({...p,id:String(p.id)}));let renamed=false;for(const p of players){const profile=state.profiles.find(x=>x.id===p.id);if(profile&&p.name!==profile.roblox_username){p.name=profile.roblox_username;renamed=true}}renderPool();renderHistory();renderTotals();renderCorrectionPlayers();if(renamed&&!$('rows').contains(document.activeElement)){renderRows();renderPitch()}$('sync').textContent='Connected · '+state.profiles.length+' club players'}finally{refreshing=false}}
+function profileById(id){return state.profiles.find(p=>p.id===String(id))}
+function pick(id){picked=String(id);renderPool();renderPitch()}
+function place(id,position){if(busy)return;const profile=profileById(id);let player=players.find(p=>p.id===String(id));if(!profile&&!player)return;if(!player){player=defaults(profile);players.push(player)}if(position!=='SUB'){const other=players.find(p=>p.id!==player.id&&p.position===position);if(other)other.position=player.position==='SUB'?'SUB':player.position}player.position=position;picked='';mark();render()}
+function dragSource(node,id){node.draggable=true;node.addEventListener('dragstart',event=>{dragging=true;event.dataTransfer.setData('application/x-nnsc-player',String(id));event.dataTransfer.setData('text/plain',String(id));event.dataTransfer.effectAllowed='move'});node.addEventListener('dragend',()=>{dragging=false;document.querySelectorAll('.over').forEach(n=>n.classList.remove('over'))})}
+function dropTarget(node,position){node.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';node.classList.add('over')});node.addEventListener('dragleave',()=>node.classList.remove('over'));node.addEventListener('drop',e=>{dragging=false;e.preventDefault();node.classList.remove('over');const id=e.dataTransfer.getData('application/x-nnsc-player')||e.dataTransfer.getData('text/plain');if(profileById(id)||players.some(p=>p.id===id))place(id,position)})}
+function playerButton(profile,forPicker=false){const p=players.find(p=>p.id===profile.id),b=el('button',undefined,'person'+(p?' used':'')+(picked===profile.id?' selected':''));const name=el('div');name.append(el('strong',profile.roblox_username),el('small',(profile.prefs||[]).join(' / ')));b.append(name);if(p)b.append(el('span',p.position,'used-mark'));b.onclick=()=>{if(forPicker){place(profile.id,pickerPosition);closeDialog('pickerDialog')}else pick(profile.id)};if(!forPicker)dragSource(b,profile.id);return b}
+function renderPool(){const root=$('pool'),q=$('search').value.toLowerCase(),scroll=root.scrollTop;root.replaceChildren();let count=0;for(const p of [...state.profiles].sort((a,b)=>a.roblox_username.localeCompare(b.roblox_username))){if(!(p.roblox_username+' '+(p.prefs||[]).join(' ')).toLowerCase().includes(q))continue;root.append(playerButton(p));count++}$('poolCount').textContent=String(count);if(!count)root.append(el('small','No matching players.'));root.scrollTop=scroll}
+function renderPitch(){const pitch=$('pitch');pitch.querySelectorAll('.slot').forEach(n=>n.remove());const player=players.find(p=>p.id===picked),profile=profileById(picked);$('pickHint').textContent=picked?'Place '+(player?.name||profile?.roblox_username||'player')+' — tap a position.':'Tap any empty position to choose a player.';$('clearPick').hidden=!picked;$('selectedCount').textContent=players.length+' players';for(const pos of formations[$('formation').value]){const p=players.find(p=>p.position===pos),b=el('button',undefined,'slot'+(!p?' empty':'')+(p&&p.id===picked?' selected':''));b.dataset.position=pos;b.style.left=coords[pos][0]+'%';b.style.top=coords[pos][1]+'%';b.setAttribute('aria-label',pos+(p?' · '+p.name:' · choose player'));b.append(el('span',pos,'pos'),el('strong',p?p.name:'＋ Choose player'));if(p){b.append(el('span',Number(p.rating).toFixed(1)+(p.motm?' ★':''),'slot-meta'));dragSource(b,p.id)}b.onclick=()=>{if(picked)place(picked,pos);else if(p)pick(p.id);else openPicker(pos)};dropTarget(b,pos);pitch.append(b)}const bench=$('bench');bench.replaceChildren();for(const p of players.filter(x=>x.position==='SUB')){const b=el('button',p.name+(p.motm?' ★':''));b.onclick=()=>pick(p.id);dragSource(b,p.id);bench.append(b)}if(!bench.childElementCount)bench.append(el('span','Drop substitutes here, or tap “Add substitute”.','hint'))}
+function numberField(p,key,label,max=100){const input=el('input');input.type='number';input.min=0;input.max=max;input.step=key==='rating'?.1:1;input.value=p[key]??(key==='minuteOut'?90:0);input.setAttribute('aria-label',p.name+' '+label);if(key==='rating')input.className='rating';input.oninput=()=>{p[key]=input.value===''?NaN:Number(input.value);mark();renderPitch()};input.onblur=()=>{if(!Number.isFinite(p[key])){p[key]=key==='rating'?6:key==='minuteOut'?90:0;input.value=p[key];mark()}};return input}
+function stepper(p,key,label){const box=el('div',undefined,'stepper'),input=numberField(p,key,label);for(const [symbol,delta] of [['−',-1],['+',1]]){const b=el('button',symbol);b.type='button';b.setAttribute('aria-label',p.name+' '+(delta>0?'add ':'remove ')+label);b.onclick=()=>{p[key]=Math.max(0,Math.min(100,(Number.isFinite(p[key])?p[key]:0)+delta));input.value=p[key];mark();renderPitch()};if(delta<0)box.append(b,input);else box.append(b)}return box}
+function cell(label,control){const box=el('div',undefined,'cell');box.append(el('span',label,'mobile-label'),control);return box}
+function renderRows(){const root=$('rows'),open=new Set([...root.querySelectorAll('.extras:not([hidden])')].map(x=>x.dataset.player));root.replaceChildren();if(!players.length){root.append(el('div','Your players appear here as soon as you place them on the pitch.','empty-state'));return}for(const p of players){const article=el('div',undefined,'player-card'),row=el('div',undefined,'player-main');article.dataset.player=p.id;row.append(el('strong',p.name,'name'));const pos=el('select');pos.setAttribute('aria-label',p.name+' position');for(const value of [...formations[$('formation').value],'SUB']){const option=el('option',value==='SUB'?'SUB':value);option.value=value;pos.append(option)}pos.value=p.position;pos.onchange=()=>place(p.id,pos.value);row.append(cell('Position',pos),cell('Rating',numberField(p,'rating','rating',10)),cell('Goals',stepper(p,'goals','goals')),cell('Assists',stepper(p,'assists','assists')));const star=el('button',p.motm?'★':'☆','motm'+(p.motm?' on':''));star.setAttribute('aria-label',p.name+' player of the match');star.setAttribute('aria-pressed',String(p.motm));star.onclick=()=>{const selected=!p.motm;players.forEach(x=>x.motm=x.id===p.id&&selected);mark();renderRows();renderPitch()};row.append(cell('MOTM',star));const extra=el('div',undefined,'extras');extra.dataset.player=p.id;extra.hidden=!open.has(p.id);for(const [key,label] of extras){const field=el('label',label);field.append(numberField(p,key,label,key.startsWith('minute')?120:100));extra.append(field)}const more=el('button',extra.hidden?'More stats':'Less','more');more.setAttribute('aria-expanded',String(!extra.hidden));more.onclick=()=>{extra.hidden=!extra.hidden;more.textContent=extra.hidden?'More stats':'Less';more.setAttribute('aria-expanded',String(!extra.hidden))};row.append(more);const remove=el('button','×','remove');remove.setAttribute('aria-label','Remove '+p.name);remove.onclick=()=>{players=players.filter(x=>x.id!==p.id);if(picked===p.id)picked='';mark();render()};row.append(remove);article.append(row,extra);root.append(article)}}
+function updateSummary(){const g=players.reduce((n,p)=>n+(Number.isFinite(p.goals)?p.goals:0),0),a=players.reduce((n,p)=>n+(Number.isFinite(p.assists)?p.assists:0),0),m=players.find(p=>p.motm);$('statsSummary').textContent=players.length+' players · '+g+' goals · '+a+' assists'+(m?' · MOTM: '+m.name:'');$('editBadge').textContent=revision?'Editing saved match':'New match';$('footerHint').textContent=revision?'Saving updates the existing Discord post and totals.':'Nothing publishes until you confirm.'}
+function render(){renderPool();renderPitch();renderRows();updateSummary()}
+function openDialog(id){returnFocus=document.activeElement;$(id).hidden=false;document.body.style.overflow='hidden';const first=$(id).querySelector('input,button');first?.focus()}
+function closeDialog(id){$(id).hidden=true;document.body.style.overflow='';returnFocus?.isConnected&&returnFocus.focus()}
+function openPicker(pos){pickerPosition=pos;$('pickerTitle').textContent=pos==='SUB'?'Add a substitute':'Choose your '+pos;$('pickerSearch').value='';renderPicker();openDialog('pickerDialog');$('pickerSearch').focus()}
+function renderPicker(){const q=$('pickerSearch').value.toLowerCase(),root=$('pickerList');root.replaceChildren();for(const p of [...state.profiles].sort((a,b)=>a.roblox_username.localeCompare(b.roblox_username))){if(!p.roblox_username.toLowerCase().includes(q))continue;root.append(playerButton(p,true))}if(!root.childElementCount)root.append(el('p','No matching player.','muted'))}
+$('search').oninput=renderPool;$('pickerSearch').oninput=renderPicker;$('clearPick').onclick=()=>{picked='';renderPool();renderPitch()};$('addSub').onclick=()=>picked?place(picked,'SUB'):openPicker('SUB');dropTarget($('bench'),'SUB');$('closePicker').onclick=()=>closeDialog('pickerDialog');$('closeReview').onclick=()=>closeDialog('reviewDialog');
+document.addEventListener('keydown',e=>{const dialog=[...document.querySelectorAll('.dialog')].find(x=>!x.hidden);if(!dialog)return;if(e.key==='Escape'&&!busy){closeDialog(dialog.id);return}if(e.key==='Tab'){const focusable=[...dialog.querySelectorAll('button,input,select')].filter(x=>!x.disabled&&x.offsetParent!==null);if(!focusable.length)return;const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+$('formation').onchange=()=>{for(const p of players)if(!formations[$('formation').value].includes(p.position))p.position='SUB';picked='';mark();render()};for(const id of ['opponent','date','ours','theirs'])$(id).oninput=mark;
+function validation(){const p=payload();if(!p.opponent)return 'Enter the opponent name.';if(!p.date)return 'Choose the match date.';if(!p.score.every(x=>Number.isInteger(x)&&x>=0&&x<=100))return 'Enter whole-number scores from 0 to 100.';if(!players.length||players.length>40)return 'Add 1–40 players who took part.';const seen=new Set();for(const p of players){if(!profileById(p.id))return p.name+' is no longer in the onboarded roster. Check their profile.';if(!Number.isFinite(p.rating)||p.rating<0||p.rating>10)return 'Enter a rating from 0 to 10 for '+p.name;for(const key of ['goals','assists',...extras.map(x=>x[0])])if(!Number.isInteger(p[key])||p[key]<0||p[key]>(key.startsWith('minute')?120:100))return 'Check '+p.name+'’s '+key+'.';if(p.minuteOut<p.minuteIn)return 'Check '+p.name+'’s playing time.';if(p.position!=='SUB'){if(seen.has(p.position))return 'Two players share a pitch position.';seen.add(p.position)}}const goals=players.reduce((n,p)=>n+p.goals,0),assists=players.reduce((n,p)=>n+p.assists,0);if(goals>p.score[0])return 'Credited player goals exceed NNSC’s score.';if(assists>goals)return 'Assists exceed credited player goals.';return ''}
+function review(){const error=validation();if(error){notice(error,true);$('statsSection').scrollIntoView({behavior:'smooth',block:'start'});return}$('reviewScore').textContent='NNSC '+$('ours').value+' – '+$('theirs').value+' '+$('opponent').value;const root=$('reviewList');root.replaceChildren();for(const p of players){const r=el('div',undefined,'review-row'),left=el('div');left.append(el('strong',p.name+(p.motm?' ★':'')),el('small',p.position+' · '+p.goals+' goals · '+p.assists+' assists'));const others=extras.slice(0,5).filter(([k])=>p[k]).map(([k,label])=>label+': '+p[k]);if(others.length)left.append(el('small',others.join(' · ')));r.append(left,el('strong',Number(p.rating).toFixed(1)));root.append(r)}$('reviewNote').textContent=revision?'This replaces the saved match. It will not count the same game twice.':'This publishes the ratings image and updates competitive game stats.';openDialog('reviewDialog')}
+$('reviewButton').onclick=review;
+$('publish').onclick=async()=>{if(busy)return;if(!revision&&state.matches.some(m=>m.date===$('date').value&&m.opponent.toLowerCase()===$('opponent').value.trim().toLowerCase())&&!confirm('A match against this opponent on this date already exists. Publish a separate game?'))return;busy=true;$('publish').disabled=true;$('closeReview').disabled=true;$('workspace').classList.add('saving');$('workspace').querySelectorAll('input,button,select').forEach(n=>n.disabled=true);try{const p=payload(),result=await api('match','POST',p);revision=result.revision;changed=false;saveDraft();await refresh();render();closeDialog('reviewDialog');$('pageTitle').textContent='Match published';notice(result.message||'Match saved. Discord publication is queued.')}catch(e){notice(e.message,true);closeDialog('reviewDialog')}finally{busy=false;$('publish').disabled=false;$('closeReview').disabled=false;$('workspace').classList.remove('saving');$('workspace').querySelectorAll('input,button,select').forEach(n=>n.disabled=false)}};
+function reset(){mid=crypto.randomUUID();revision=0;players=[];picked='';changed=false;$('opponent').value='';$('date').value=new Date().toLocaleDateString('en-CA');$('ours').value=0;$('theirs').value=0;$('formation').value='3-1-2';$('pageTitle').textContent='Record a match';render();$('saveState').textContent='New match draft';saveDraft()}
+$('new').onclick=async()=>{if(busy||changed&&!confirm('Start a new match and discard unsaved edits?'))return;try{const next=crypto.randomUUID();await api('action','POST',{action:'draft_started',match_id:next});reset();mid=next;saveDraft();window.scrollTo({top:0,behavior:'smooth'})}catch(e){notice(e.message,true)}};
+function restoreDraft(){try{let d=JSON.parse(localStorage.getItem(draftKey())||'null');if(!d){const legacy=JSON.parse(localStorage.getItem('nnscCompetitiveDraft')||'null');if(legacy?.changed)d={...legacy,id:legacy.mid,score:[Number(legacy.ours),Number(legacy.theirs)]}}if(!d||!Array.isArray(d.players))return;mid=d.id||d.mid;revision=d.revision||0;players=d.players.map(p=>({...defaults({id:p.id,roblox_username:p.name}),...p,id:String(p.id)}));changed=!!d.changed;$('opponent').value=d.opponent||'';$('date').value=d.date||new Date().toLocaleDateString('en-CA');$('ours').value=d.score?.[0]??0;$('theirs').value=d.score?.[1]??0;$('formation').value=formations[d.formation]?d.formation:'3-1-2';render();$('saveState').textContent=changed?'Recovered unsaved draft':'All changes published'}catch(e){notice('The previous browser draft could not be restored.',true)}}
+function renderHistory(){const q=$('historySearch').value.toLowerCase(),root=$('history');root.replaceChildren();for(const m of state.matches){if(!(m.date+' '+m.opponent).toLowerCase().includes(q))continue;const b=el('button',m.date+' · NNSC '+m.score.join('–')+' '+m.opponent);b.onclick=async()=>{if(busy||changed&&!confirm('Discard unsaved edits and open this match?'))return;try{await api('action','POST',{action:'match_opened',match_id:m.id});mid=m.id;revision=m.revision;players=m.players.map(p=>({...defaults({id:p.id,roblox_username:p.name}),...p,id:String(p.id)}));for(const key of ['opponent','date','formation'])$(key).value=m[key]||'3-1-2';$('ours').value=m.score[0];$('theirs').value=m.score[1];changed=false;picked='';render();saveDraft();$('pageTitle').textContent='Edit saved match';window.scrollTo({top:0,behavior:'smooth'});notice('Editing a saved match. Publishing will update its existing Discord post and totals.')}catch(e){notice(e.message,true)}};root.append(b)}if(!root.childElementCount)root.append(el('p','No saved matches found.','muted'))}
+$('historySearch').oninput=renderHistory;
+function renderTotals(){const root=$('leaders'),category=$('category').value;root.replaceChildren();for(const [id,total] of Object.entries(state.totals).filter(([id,t])=>t[category]>0).sort((a,b)=>b[1][category]-a[1][category])){const row=el('tr');row.append(el('td',profileById(id)?.roblox_username||id),el('td',String(total[category])));root.append(row)}if(!root.childElementCount){const row=el('tr');row.append(el('td','No recorded totals yet.'));root.append(row)}}$('category').onchange=renderTotals;
+function renderCorrectionPlayers(){const root=$('adjustPlayer'),value=root.value;if(document.activeElement===root)return;root.replaceChildren();for(const p of [...state.profiles].sort((a,b)=>a.roblox_username.localeCompare(b.roblox_username))){const option=el('option',p.roblox_username);option.value=p.id;root.append(option)}if([...root.options].some(x=>x.value===value))root.value=value}
+$('adjustForm').onsubmit=async e=>{e.preventDefault();if(busy)return;try{const result=await api('adjust','POST',{id:$('adjustPlayer').value,category:$('adjustCat').value,amount:Number($('adjustAmount').value),reason:$('reason').value});await refresh();notice(result.message)}catch(e){notice(e.message,true)}};
+$('export').onclick=async()=>{if(busy)return;try{await api('action','POST',{action:'image_export',match_id:mid});const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=1440;const ctx=canvas.getContext('2d');ctx.fillStyle='#111c26';ctx.fillRect(0,0,1200,1440);ctx.fillStyle='#f4f5f0';ctx.textAlign='center';ctx.font='bold 35px sans-serif';ctx.fillText('NNSC '+$('ours').value+' – '+$('theirs').value+' '+$('opponent').value,600,60,1120);ctx.font='22px sans-serif';ctx.fillText($('date').value,600,100);ctx.fillStyle='#284c3c';ctx.fillRect(35,140,1130,1000);ctx.strokeStyle='#71917b';ctx.strokeRect(50,155,1100,970);ctx.beginPath();ctx.moveTo(50,640);ctx.lineTo(1150,640);ctx.stroke();for(const p of players.filter(x=>x.position!=='SUB')){const point=coords[p.position];if(!point)continue;const x=35+point[0]*11.3,y=140+point[1]*10;ctx.fillStyle='#142b27';ctx.fillRect(x-150,y-25,300,100);ctx.fillStyle='#f4f5f0';ctx.font='bold 27px sans-serif';ctx.fillText(p.name,x,y+10,285);ctx.font='23px sans-serif';ctx.fillText(p.position+' · '+Number(p.rating).toFixed(1)+(p.motm?' ★':''),x,y+46)}ctx.font='23px sans-serif';players.filter(p=>p.position==='SUB').forEach((p,n)=>ctx.fillText(p.name+' · '+Number(p.rating).toFixed(1),600,1190+n*30,1100));const a=el('a');a.href=canvas.toDataURL();a.download='nnsc-'+mid+'.png';a.click();notice('Lineup image downloaded. Discord publishes the full avatar poster when you save the match.')}catch(e){notice(e.message,true)}};
+window.addEventListener('beforeunload',e=>{saveDraft();if(changed){e.preventDefault();e.returnValue=''}});setInterval(async()=>{if(!session||busy||document.hidden)return;try{await refresh()}catch(e){$('sync').textContent='Sync paused';notice(e.message,true)}},10000);
+reset();signIn();
+</script>
+<script>
+/* Visual polish only: cursor spotlight on glass, button ripples, orb parallax. No app logic here. */
+(()=>{
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.addEventListener('pointermove',e=>{
+ const card=e.target.closest&&e.target.closest('.card');
+ if(card){const r=card.getBoundingClientRect();card.style.setProperty('--mx',(e.clientX-r.left)+'px');card.style.setProperty('--my',(e.clientY-r.top)+'px')}
+},{passive:true});
+document.addEventListener('pointerdown',e=>{
+ if(reduce)return;
+ const b=e.target.closest&&e.target.closest('#new,#addSub,#export,#clearPick,#signout,#retry,#closeReview,#closePicker,.primary,.soft');
+ if(!b||b.disabled)return;
+ const r=b.getBoundingClientRect(),s=Math.max(r.width,r.height)*2,d=document.createElement('span');
+ d.className='ripple';d.style.width=d.style.height=s+'px';d.style.left=(e.clientX-r.left-s/2)+'px';d.style.top=(e.clientY-r.top-s/2)+'px';
+ b.append(d);setTimeout(()=>d.remove(),750);
+});
+if(!reduce){
+ const orbs=[...document.querySelectorAll('.orb')];let tx=0,ty=0,cx=0,cy=0;
+ addEventListener('pointermove',e=>{tx=e.clientX/innerWidth-.5;ty=e.clientY/innerHeight-.5},{passive:true});
+ (function loop(){cx+=(tx-cx)*.04;cy+=(ty-cy)*.04;
+  orbs.forEach((o,i)=>{const k=(i+1)*14;o.style.translate=(cx*k)+'px '+(cy*k)+'px'});
+  requestAnimationFrame(loop)})();
+}
+})();
 </script></body></html>
