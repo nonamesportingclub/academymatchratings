@@ -298,8 +298,8 @@ details>*:not(summary){animation:expand .55s var(--ease)}
   <p class="archive-hint" id="archiveClipHint">Save the match to add clips.</p>
   <form id="archiveClipForm" class="archive-player-fields" hidden>
     <label>Clip title<input id="archiveClipTitle" required maxlength="100" placeholder="e.g. The winning goal"></label>
-    <label>MP4 file<input id="archiveClipFile" required type="file" accept=".mp4,video/mp4"></label>
-    <button type="submit" id="archiveClipUpload">Upload clip</button>
+    <label>Medal link<input id="archiveMedalLink" required type="url" maxlength="2048" placeholder="https://medal.tv/clips/…" autocomplete="off"></label>
+    <button type="submit" id="archiveClipSave">Save clip</button>
   </form>
   <div id="archiveClipList"></div><small id="archiveClipState" role="status"></small>
 </section>
@@ -369,7 +369,7 @@ function renderTotals(){const root=$('leaders'),category=$('category').value;roo
 function renderCorrectionPlayers(){const root=$('adjustPlayer'),value=root.value;if(document.activeElement===root)return;root.replaceChildren();for(const p of [...state.profiles].sort((a,b)=>a.roblox_username.localeCompare(b.roblox_username))){const option=el('option',p.roblox_username);option.value=p.id;root.append(option)}if([...root.options].some(x=>x.value===value))root.value=value}
 $('adjustForm').onsubmit=async e=>{e.preventDefault();if(busy)return;try{const result=await api('adjust','POST',{id:$('adjustPlayer').value,category:$('adjustCat').value,amount:Number($('adjustAmount').value),reason:$('reason').value});await refresh();notice(result.message)}catch(e){notice(e.message,true)}};
 $('export').onclick=async()=>{if(busy)return;try{await api('action','POST',{action:'image_export',match_id:mid});const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=1440;const ctx=canvas.getContext('2d');ctx.fillStyle=(themes[$('competition').value]||themes.default).bottom;ctx.fillRect(0,0,1200,1440);ctx.fillStyle='#f4f5f0';ctx.textAlign='center';ctx.font='bold 35px sans-serif';ctx.fillText('NNSC '+$('ours').value+' – '+$('theirs').value+' '+$('opponent').value,600,60,1120);ctx.font='22px sans-serif';ctx.fillText($('date').value+' · '+(themes[$('competition').value]||themes.default).name+' · Opponent OG: '+Number($('opponentOwnGoals').value),600,100);ctx.fillStyle='#284c3c';ctx.fillRect(35,140,1130,1000);ctx.strokeStyle='#71917b';ctx.strokeRect(50,155,1100,970);ctx.beginPath();ctx.moveTo(50,640);ctx.lineTo(1150,640);ctx.stroke();for(const p of players.filter(x=>x.position!=='SUB')){const point=coords[p.position];if(!point)continue;const x=35+point[0]*11.3,y=140+point[1]*10;ctx.fillStyle='#142b27';ctx.fillRect(x-150,y-25,300,100);ctx.fillStyle='#f4f5f0';ctx.font='bold 27px sans-serif';ctx.fillText(p.name,x,y+10,285);ctx.font='23px sans-serif';ctx.fillText(p.position+' · '+Number(p.rating).toFixed(1)+(p.motm?' ★':''),x,y+46)}ctx.font='23px sans-serif';players.filter(p=>p.position==='SUB').forEach((p,n)=>ctx.fillText(p.name+' · '+Number(p.rating).toFixed(1),600,1190+n*30,1100));const a=el('a');a.href=canvas.toDataURL();a.download='nnsc-'+mid+'.png';a.click();notice('Lineup image downloaded. Discord publishes the full avatar poster when you save the match.')}catch(e){notice(e.message,true)}};
-/* NNSC_MATCH_ARCHIVE */
+/* NNSC_MATCH_ARCHIVE_MEDAL */
 let archived=false, clipMatch='', clipBusy=false, clipLoad=0;
 const clipEndpoint=id=>'archive/clips/'+encodeURIComponent(id);
 function updateArchiveReview(){
@@ -384,7 +384,7 @@ function renderArchiveEditor(){
   }
   const saved=revision>0;
   $('archiveClipForm').hidden=!saved;
-  $('archiveClipHint').textContent=saved?'Up to 10 MP4 clips, 25 MiB each. Players can revisit clips on the match anniversary.':'Save the match to add clips.';
+  $('archiveClipHint').textContent=saved?'Paste a Medal post link. Players can open it from the results or revisit it on the match anniversary.':'Save the match to add clips.';
   if(clipMatch!==(saved?mid:'')){
     clipMatch=saved?mid:'';
     $('archiveClipForm').reset();
@@ -468,28 +468,19 @@ async function loadClips(){
 $('archiveClipForm').onsubmit=async event=>{
   event.preventDefault();
   if(clipBusy||busy||!clipMatch)return;
-  const file=$('archiveClipFile').files[0],title=$('archiveClipTitle').value.trim(),id=clipMatch;
-  if(!file||!file.name.toLowerCase().endsWith('.mp4')||file.size>25*1024*1024)return notice('Choose an MP4 clip up to 25 MiB.',true);
-  clipBusy=true;$('archiveClipUpload').disabled=true;
-  $('archiveClipState').textContent='Uploading…';
+  const url=$('archiveMedalLink').value.trim(),title=$('archiveClipTitle').value.trim(),id=clipMatch;
+  clipBusy=true;$('archiveClipSave').disabled=true;
+  $('archiveClipState').textContent='Saving…';
   try{
-    const r=await fetch(API+'/api/'+clipEndpoint(id)+'?title='+encodeURIComponent(title),{
-      method:'POST',headers:{'Content-Type':'video/mp4',Authorization:'Bearer '+session},body:file
-    });
-    const body=await r.text();
-    if(!r.ok){
-      let message=body;
-      try{message=JSON.parse(body).error||body}catch{}
-      throw Error(message||'The upload failed.');
-    }
+    const result=await api(clipEndpoint(id),'POST',{url,title});
     if(id===clipMatch){
       $('archiveClipForm').reset();
-      $('archiveClipState').textContent='Clip saved.';
+      $('archiveClipState').textContent=result.message;
       await loadClips();
     }
     await refresh();
   }catch(e){if(id===clipMatch)$('archiveClipState').textContent=e.message}
-  finally{clipBusy=false;$('archiveClipUpload').disabled=false}
+  finally{clipBusy=false;$('archiveClipSave').disabled=false}
 };
 $('openHistory').onclick=()=>{
   $('historySection').open=true;
