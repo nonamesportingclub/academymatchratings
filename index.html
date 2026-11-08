@@ -267,13 +267,44 @@ details>*:not(summary){animation:expand .55s var(--ease)}
 <header><div class="wrap bar"><div><span class="brand">NNSC</span> <span class="muted">/ Match ratings</span></div><div class="tools"><span id="sync" class="pill">Not connected</span><button id="signout" hidden>Sign out</button></div></div></header>
 <main class="wrap"><div id="status" role="status" aria-live="polite" hidden></div>
 <section id="login" class="card login"><h1>Match ratings, made easy.</h1><p>Open your personal <strong>/ratings</strong> link from Discord to enter a match. Your existing staff permissions still apply.</p><button id="retry" class="primary">Connect</button></section>
-<div id="app" hidden><div class="intro bar"><div><h1 id="pageTitle">Record a match</h1><p>Place your players. Enter their numbers. Publish.</p></div><button id="new">＋ New match</button></div>
+<div id="app" hidden><div class="intro bar"><div><h1 id="pageTitle">Record a match</h1><p>Place your players. Enter their numbers. Publish.</p></div><div class="archive-actions"><button id="new">＋ New match</button><button id="newHistorical">＋ Historical match</button><button id="openHistory">Match history</button></div></div>
 <div id="workspace">
 <section class="card"><div class="section-title"><h2><span class="number">1</span>Match details</h2><span id="editBadge" class="pill">New match</span></div><div class="form"><label>Opponent<input id="opponent" maxlength="100" placeholder="Who did we play?" autocomplete="off"></label><label>Date<input id="date" type="date"></label><label>NNSC score<input id="ours" class="score-input" type="number" min="0" max="100" value="0"></label><label>Opponent score<input id="theirs" class="score-input" type="number" min="0" max="100" value="0"></label><label>Competition / card theme<select id="competition"><option value="default">Default</option><option value="champions_league">Champions League</option><option value="europa_league">Europa League</option><option value="conference_league">Conference League</option><option value="world_cup">World Cup</option><option value="laliga">LaLiga</option><option value="premier_league">Premier League</option><option value="bundesliga">Bundesliga</option><option value="serie_a">Serie A</option><option value="ligue_1">Ligue 1</option><option value="euros">European Championship</option><option value="copa_america">Copa America</option><option value="fa_cup">FA Cup</option><option value="club_world_cup">Club World Cup</option></select></label><label>Opponent own goals (for NNSC)<input id="opponentOwnGoals" type="number" min="0" max="100" value="0"><small>Included in NNSC score. No player gets scorer credit.</small></label><label>Formation<select id="formation"><option>3-1-2</option><option>2-2-2</option><option>3-0-3</option><option>2-1-3</option></select></label></div></section>
 <section class="card" id="lineupSection"><div class="section-title"><div><h2><span class="number">2</span>Place your players</h2><p>Drag a name onto the pitch. On a phone, tap a name and then a position.</p></div><button id="clearPick" hidden>Clear selection</button></div><div class="lineup"><aside class="pool"><div class="bar"><h3>Club players</h3><small id="poolCount"></small></div><input id="search" type="search" placeholder="Search a player…" aria-label="Search club players" autocomplete="off"><div id="pool" class="player-list"></div><p class="drag-help">Already placed? Drag them to another spot to move or swap them.</p></aside><div class="field-board"><div class="board-top"><span id="pickHint" role="status">Tap any empty position to choose a player.</span><small id="selectedCount">0 players</small></div><div id="pitch" class="pitch"><div class="field-lines"></div><div class="goal-area top"></div><div class="goal-area bottom"></div></div><div class="bar" style="margin-bottom:8px"><h3>Substitutes who played</h3><button id="addSub">＋ Add substitute</button></div><div id="bench" class="bench" aria-label="Substitutes drop area"></div></div></div></section>
 <section class="card" id="statsSection"><div class="section-title"><div><h2><span class="number">3</span>Ratings & stats</h2><p>Type a rating, use + / − for goals and assists, and choose one player of the match.</p></div></div><div class="stats-head" aria-hidden="true"><span>Player</span><span>Position</span><span>Rating</span><span>Goals</span><span>Assists</span><span>MOTM</span><span></span><span></span></div><div id="rows"></div><p id="statsSummary" class="summary-line"></p></section>
 </div>
-<details class="card" id="historySection"><summary>Saved matches · edit an older game</summary><input id="historySearch" type="search" placeholder="Find an opponent or date" aria-label="Search saved matches" style="width:100%;margin-bottom:14px"><div id="history" class="history-list"></div></details>
+<style>
+.archive-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.archive-actions small,.archive-hint{color:var(--muted)}
+.archive-player-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end}
+.archive-player-fields label{display:grid;gap:6px}
+.archive-player-fields input{width:100%;min-width:0}
+.archive-history-row,.archive-clip-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.archive-history-row>button:first-child,.archive-clip-row>span{flex:1;text-align:left;min-width:0;overflow-wrap:anywhere}
+#archiveClipList{margin-top:12px}
+#archiveClipState{display:block;min-height:1.4em}
+</style>
+<section class="card" id="historicalPlayerPanel" hidden>
+  <h2>Add a historical player</h2>
+  <p class="archive-hint">Use the exact Roblox username for their avatar and match sheet. Add their Discord user ID if you want them to receive anniversary clips.</p>
+  <div class="archive-player-fields">
+    <label>Roblox username<input id="historicalRoblox" maxlength="20" autocomplete="off"></label>
+    <label>Discord user ID (optional)<input id="historicalDiscord" maxlength="19" inputmode="numeric" autocomplete="off"></label>
+    <button type="button" id="addHistoricalPlayer">Add to lineup</button>
+  </div>
+</section>
+<section class="card" id="archiveClipPanel">
+  <div class="section-title"><h2>Match clips <small>· Optional</small></h2></div>
+  <p class="archive-hint" id="archiveClipHint">Save the match to add clips.</p>
+  <form id="archiveClipForm" class="archive-player-fields" hidden>
+    <label>Clip title<input id="archiveClipTitle" required maxlength="100" placeholder="e.g. The winning goal"></label>
+    <label>MP4 file<input id="archiveClipFile" required type="file" accept=".mp4,video/mp4"></label>
+    <button type="submit" id="archiveClipUpload">Upload clip</button>
+  </form>
+  <div id="archiveClipList"></div><small id="archiveClipState" role="status"></small>
+</section>
+
+<details class="card" id="historySection"><summary>Match history</summary><div class="archive-actions"><button id="publishHistory">Publish history to Discord</button><small>Oldest to newest. Existing Discord posts are updated in place.</small></div><input id="historySearch" type="search" placeholder="Find an opponent or date" aria-label="Search saved matches" style="width:100%;margin-bottom:14px"><div id="history" class="history-list"></div></details>
 <details class="card"><summary>Club totals & corrections</summary><div class="tools"><label for="category">Leaderboard</label><select id="category"><option value="ga">Goals + assists</option><option value="goals">Goals</option><option value="assists">Assists</option><option value="motms">Player of the match</option><option value="games">Games played</option></select></div><table class="totals"><tbody id="leaders"></tbody></table><details style="margin-top:22px"><summary>Correct a total or add historical stats</summary><p class="muted" style="margin:12px 0">Use a positive number to add, or a negative number to subtract. Include a reason.</p><form id="adjustForm" class="form"><label>Player<select id="adjustPlayer" required></select></label><label>Stat<select id="adjustCat"><option value="goals">Goals</option><option value="assists">Assists</option><option value="motms">MOTM awards</option><option value="games">Games played</option></select></label><label>Change<input id="adjustAmount" type="number" min="-10000" max="10000" placeholder="e.g. -1" required></label><label style="grid-column:1/-1">Reason<input id="reason" required maxlength="500" placeholder="Why is this being corrected?"></label><button class="soft">Save correction</button></form></details></details>
 <div class="footer-actions"><div><strong id="saveState">Draft saved on this browser</strong><small id="footerHint">Nothing publishes until you confirm.</small></div><div class="tools"><button id="export">Download image</button><button id="reviewButton" class="primary">Review & publish →</button></div></div>
 </div></main>
@@ -297,13 +328,13 @@ function el(tag,text,cls){const e=document.createElement(tag);if(text!==undefine
 function notice(text,error=false){$('status').textContent=text;$('status').className=error?'error':'';$('status').hidden=!text}
 function defaults(profile){return {id:String(profile.id),name:profile.roblox_username,position:'SUB',rating:6,goals:0,assists:0,motm:false,yellowCards:0,redCards:0,ownGoals:0,missedPenalties:0,penaltySaves:0,minuteIn:0,minuteOut:90}}
 function draftKey(){return 'nnscRatingsDraft:'+API+':'+actor}
-function saveDraft(){if(!session)return;try{localStorage.setItem(draftKey(),JSON.stringify(payload(true)));lastSaved=new Date().toLocaleTimeString();$('saveState').textContent=changed?'Unsaved match · draft stored':'All changes published'}catch(e){$('saveState').textContent='Browser draft storage unavailable'}}
+function saveDraft(){if(!session)return;try{localStorage.setItem(draftKey(),JSON.stringify(payload(true)));lastSaved=new Date().toLocaleTimeString();$('saveState').textContent=changed?'Unsaved match · draft stored':'All changes saved'}catch(e){$('saveState').textContent='Browser draft storage unavailable'}}
 function mark(){changed=true;$('saveState').textContent='Unsaved changes';clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,350);updateSummary()}
-function payload(draft=false){return {id:mid,mid,revision,opponent:$('opponent').value.trim(),date:$('date').value,score:[Number($('ours').value),Number($('theirs').value)],formation:$('formation').value,competition:$('competition').value,opponentOwnGoals:Number($('opponentOwnGoals').value),players:players.map(p=>({...p})),...(draft?{changed}: {})}}
+function payload(draft=false){return {id:mid,mid,revision,archived,opponent:$('opponent').value.trim(),date:$('date').value,score:[Number($('ours').value),Number($('theirs').value)],formation:$('formation').value,competition:$('competition').value,opponentOwnGoals:Number($('opponentOwnGoals').value),players:players.map(p=>({...p})),...(draft?{changed}: {})}}
 async function api(path,method='GET',data){if(!API)throw Error('Invalid backend address. Open a fresh /ratings link.');const r=await fetch(API+'/api/'+path,{method,headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session}:{})},...(data?{body:JSON.stringify(data)}:{})});let result;try{result=await r.json()}catch(e){throw Error('The bot returned HTTP '+r.status+'. Check that you opened your /ratings link.')}if(!r.ok)throw Error(result.error||('Request failed ('+r.status+'). Open a fresh /ratings link if your session expired.'));return result}
 async function signIn(){if(busy)return;busy=true;$('retry').disabled=true;try{if(loginToken){const p=await api('login','POST',{token:loginToken});session=p.session;actor=p.actor;loginToken='';sessionStorage.setItem('nnscRatingsSession:'+API,JSON.stringify({session,actor}))}else{const saved=JSON.parse(sessionStorage.getItem('nnscRatingsSession:'+API)||'null');if(!saved)throw Error('Run /ratings in Discord and open your personal link.');session=saved.session;actor=saved.actor}await refresh();$('login').hidden=true;$('app').hidden=false;$('signout').hidden=false;restoreDraft();notice('Connected. Place players on the pitch to get started.')}catch(e){notice(e.message==='Failed to fetch'?'Cannot reach the bot. Check your connection and open a fresh /ratings link.':e.message,true)}finally{busy=false;$('retry').disabled=false}}
 $('retry').onclick=signIn;$('signout').onclick=()=>{saveDraft();sessionStorage.removeItem('nnscRatingsSession:'+API);session='';actor='';$('app').hidden=true;$('login').hidden=false;$('signout').hidden=true;$('sync').textContent='Signed out';notice('Signed out.')};
-async function refresh(){if(refreshing||dragging)return;refreshing=true;try{state=await api('state');state.profiles=state.profiles.map(p=>({...p,id:String(p.id)}));let renamed=false;for(const p of players){const profile=state.profiles.find(x=>x.id===p.id);if(profile&&p.name!==profile.roblox_username){p.name=profile.roblox_username;renamed=true}}renderPool();renderHistory();renderTotals();renderCorrectionPlayers();if(renamed&&!$('rows').contains(document.activeElement)){renderRows();renderPitch()}$('sync').textContent='Connected · '+state.profiles.length+' club players'}finally{refreshing=false}}
+async function refresh(){if(refreshing||dragging)return;refreshing=true;try{state=await api('state');state.profiles=state.profiles.map(p=>({...p,id:String(p.id)}));let renamed=false;for(const p of players){const profile=state.profiles.find(x=>x.id===p.id);if(profile&&!p.historicalPlayer&&p.name!==profile.roblox_username){p.name=profile.roblox_username;renamed=true}}renderPool();renderHistory();renderTotals();renderCorrectionPlayers();if(renamed&&!$('rows').contains(document.activeElement)){renderRows();renderPitch()}$('sync').textContent='Connected · '+state.profiles.length+' club players'}finally{refreshing=false}}
 function profileById(id){return state.profiles.find(p=>p.id===String(id))}
 function pick(id){picked=String(id);renderPool();renderPitch()}
 function place(id,position){if(busy)return;const profile=profileById(id);let player=players.find(p=>p.id===String(id));if(!profile&&!player)return;if(!player){player=defaults(profile);players.push(player)}if(position!=='SUB'){const other=players.find(p=>p.id!==player.id&&p.position===position);if(other)other.position=player.position==='SUB'?'SUB':player.position}player.position=position;picked='';mark();render()}
@@ -317,7 +348,7 @@ function stepper(p,key,label){const box=el('div',undefined,'stepper'),input=numb
 function cell(label,control){const box=el('div',undefined,'cell');box.append(el('span',label,'mobile-label'),control);return box}
 function renderRows(){const root=$('rows'),open=new Set([...root.querySelectorAll('.extras:not([hidden])')].map(x=>x.dataset.player));root.replaceChildren();if(!players.length){root.append(el('div','Your players appear here as soon as you place them on the pitch.','empty-state'));return}for(const p of players){const article=el('div',undefined,'player-card'),row=el('div',undefined,'player-main');article.dataset.player=p.id;row.append(el('strong',p.name,'name'));const pos=el('select');pos.setAttribute('aria-label',p.name+' position');for(const value of [...formations[$('formation').value],'SUB']){const option=el('option',value==='SUB'?'SUB':value);option.value=value;pos.append(option)}pos.value=p.position;pos.onchange=()=>place(p.id,pos.value);row.append(cell('Position',pos),cell('Rating',numberField(p,'rating','rating',10)),cell('Goals',stepper(p,'goals','goals')),cell('Assists',stepper(p,'assists','assists')));const star=el('button',p.motm?'★':'☆','motm'+(p.motm?' on':''));star.setAttribute('aria-label',p.name+' player of the match');star.setAttribute('aria-pressed',String(p.motm));star.onclick=()=>{const selected=!p.motm;players.forEach(x=>x.motm=x.id===p.id&&selected);mark();renderRows();renderPitch()};row.append(cell('MOTM',star));const extra=el('div',undefined,'extras');extra.dataset.player=p.id;extra.hidden=!open.has(p.id);for(const [key,label] of extras){const field=el('label',label);field.append(numberField(p,key,label,key.startsWith('minute')?120:100));extra.append(field)}const more=el('button',extra.hidden?'More stats':'Less','more');more.setAttribute('aria-expanded',String(!extra.hidden));more.onclick=()=>{extra.hidden=!extra.hidden;more.textContent=extra.hidden?'More stats':'Less';more.setAttribute('aria-expanded',String(!extra.hidden))};row.append(more);const remove=el('button','×','remove');remove.setAttribute('aria-label','Remove '+p.name);remove.onclick=()=>{players=players.filter(x=>x.id!==p.id);if(picked===p.id)picked='';mark();render()};row.append(remove);article.append(row,extra);root.append(article)}}
 function updateSummary(){const g=players.reduce((n,p)=>n+(Number.isFinite(p.goals)?p.goals:0),0),a=players.reduce((n,p)=>n+(Number.isFinite(p.assists)?p.assists:0),0),m=players.find(p=>p.motm);$('statsSummary').textContent=($('competition').selectedOptions[0]?.textContent||'Default')+' · '+Number($('opponentOwnGoals').value)+' opponent own goals · '+players.length+' players · '+g+' goals · '+a+' assists'+(m?' · MOTM: '+m.name:'');$('editBadge').textContent=revision?'Editing saved match':'New match';$('footerHint').textContent=revision?'Saving updates the existing Discord post and totals.':'Nothing publishes until you confirm.'}
-function render(){renderPool();renderPitch();renderRows();updateSummary()}
+function render(){renderPool();renderPitch();renderRows();updateSummary();renderArchiveEditor()}
 function openDialog(id){returnFocus=document.activeElement;$(id).hidden=false;document.body.style.overflow='hidden';const first=$(id).querySelector('input,button');first?.focus()}
 function closeDialog(id){$(id).hidden=true;document.body.style.overflow='';returnFocus?.isConnected&&returnFocus.focus()}
 function openPicker(pos){pickerPosition=pos;$('pickerTitle').textContent=pos==='SUB'?'Add a substitute':'Choose your '+pos;$('pickerSearch').value='';renderPicker();openDialog('pickerDialog');$('pickerSearch').focus()}
@@ -325,19 +356,156 @@ function renderPicker(){const q=$('pickerSearch').value.toLowerCase(),root=$('pi
 $('search').oninput=renderPool;$('pickerSearch').oninput=renderPicker;$('clearPick').onclick=()=>{picked='';renderPool();renderPitch()};$('addSub').onclick=()=>picked?place(picked,'SUB'):openPicker('SUB');dropTarget($('bench'),'SUB');$('closePicker').onclick=()=>closeDialog('pickerDialog');$('closeReview').onclick=()=>closeDialog('reviewDialog');
 document.addEventListener('keydown',e=>{const dialog=[...document.querySelectorAll('.dialog')].find(x=>!x.hidden);if(!dialog)return;if(e.key==='Escape'&&!busy){closeDialog(dialog.id);return}if(e.key==='Tab'){const focusable=[...dialog.querySelectorAll('button,input,select')].filter(x=>!x.disabled&&x.offsetParent!==null);if(!focusable.length)return;const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 $('formation').onchange=()=>{for(const p of players)if(!formations[$('formation').value].includes(p.position))p.position='SUB';picked='';mark();render()};for(const id of ['opponent','date','ours','theirs','opponentOwnGoals'])$(id).oninput=mark;
-function validation(){const p=payload();if(!Number.isInteger(p.opponentOwnGoals)||p.opponentOwnGoals<0||p.opponentOwnGoals>100)return 'Enter whole-number opponent own goals from 0 to 100.';if(!p.opponent)return 'Enter the opponent name.';if(!p.date)return 'Choose the match date.';if(!p.score.every(x=>Number.isInteger(x)&&x>=0&&x<=100))return 'Enter whole-number scores from 0 to 100.';if(!players.length||players.length>40)return 'Add 1–40 players who took part.';const seen=new Set();for(const p of players){if(!profileById(p.id))return p.name+' is no longer in the onboarded roster. Check their profile.';if(!Number.isFinite(p.rating)||p.rating<0||p.rating>10)return 'Enter a rating from 0 to 10 for '+p.name;for(const key of ['goals','assists',...extras.map(x=>x[0])])if(!Number.isInteger(p[key])||p[key]<0||p[key]>(key.startsWith('minute')?120:100))return 'Check '+p.name+'’s '+key+'.';if(p.minuteOut<p.minuteIn)return 'Check '+p.name+'’s playing time.';if(p.position!=='SUB'){if(seen.has(p.position))return 'Two players share a pitch position.';seen.add(p.position)}}const goals=players.reduce((n,p)=>n+p.goals,0),assists=players.reduce((n,p)=>n+p.assists,0);if(goals+p.opponentOwnGoals>p.score[0])return 'Player goals plus opponent own goals exceed NNSC’s score.';if(assists>goals)return 'Assists exceed credited player goals.';return ''}
-function review(){const error=validation();if(error){notice(error,true);$('statsSection').scrollIntoView({behavior:'smooth',block:'start'});return}$('reviewScore').textContent='NNSC '+$('ours').value+' – '+$('theirs').value+' '+$('opponent').value;const root=$('reviewList');root.replaceChildren();for(const p of players){const r=el('div',undefined,'review-row'),left=el('div');left.append(el('strong',p.name+(p.motm?' ★':'')),el('small',p.position+' · '+p.goals+' goals · '+p.assists+' assists'));const others=extras.slice(0,5).filter(([k])=>p[k]).map(([k,label])=>label+': '+p[k]);if(others.length)left.append(el('small',others.join(' · ')));r.append(left,el('strong',Number(p.rating).toFixed(1)));root.append(r)}$('reviewList').append(el('p',($('competition').selectedOptions[0]?.textContent||'Default')+' · Opponent own goals: '+Number($('opponentOwnGoals').value)+' (for NNSC; no player scorer credit)','summary-line'));$('reviewNote').textContent=revision?'This replaces the saved match. It will not count the same game twice.':'This publishes the ratings image and updates competitive game stats.';openDialog('reviewDialog')}
+function validation(){const p=payload();if(!Number.isInteger(p.opponentOwnGoals)||p.opponentOwnGoals<0||p.opponentOwnGoals>100)return 'Enter whole-number opponent own goals from 0 to 100.';if(!p.opponent)return 'Enter the opponent name.';if(!p.date)return 'Choose the match date.';if(!p.score.every(x=>Number.isInteger(x)&&x>=0&&x<=100))return 'Enter whole-number scores from 0 to 100.';if(!players.length||players.length>40)return 'Add 1–40 players who took part.';const seen=new Set();for(const p of players){if(!(archived&&p.historicalPlayer)&&!profileById(p.id))return p.name+' is no longer in the onboarded roster. Check their profile.';if(!Number.isFinite(p.rating)||p.rating<0||p.rating>10)return 'Enter a rating from 0 to 10 for '+p.name;for(const key of ['goals','assists',...extras.map(x=>x[0])])if(!Number.isInteger(p[key])||p[key]<0||p[key]>(key.startsWith('minute')?120:100))return 'Check '+p.name+'’s '+key+'.';if(p.minuteOut<p.minuteIn)return 'Check '+p.name+'’s playing time.';if(p.position!=='SUB'){if(seen.has(p.position))return 'Two players share a pitch position.';seen.add(p.position)}}const goals=players.reduce((n,p)=>n+p.goals,0),assists=players.reduce((n,p)=>n+p.assists,0);if(goals+p.opponentOwnGoals>p.score[0])return 'Player goals plus opponent own goals exceed NNSC’s score.';if(assists>goals)return 'Assists exceed credited player goals.';return ''}
+function review(){const error=validation();if(error){notice(error,true);$('statsSection').scrollIntoView({behavior:'smooth',block:'start'});return}$('reviewScore').textContent='NNSC '+$('ours').value+' – '+$('theirs').value+' '+$('opponent').value;const root=$('reviewList');root.replaceChildren();for(const p of players){const r=el('div',undefined,'review-row'),left=el('div');left.append(el('strong',p.name+(p.motm?' ★':'')),el('small',p.position+' · '+p.goals+' goals · '+p.assists+' assists'));const others=extras.slice(0,5).filter(([k])=>p[k]).map(([k,label])=>label+': '+p[k]);if(others.length)left.append(el('small',others.join(' · ')));r.append(left,el('strong',Number(p.rating).toFixed(1)));root.append(r)}$('reviewList').append(el('p',($('competition').selectedOptions[0]?.textContent||'Default')+' · Opponent own goals: '+Number($('opponentOwnGoals').value)+' (for NNSC; no player scorer credit)','summary-line'));$('reviewNote').textContent=revision?'This replaces the saved match. It will not count the same game twice.':'This publishes the ratings image and updates competitive game stats.';updateArchiveReview();openDialog('reviewDialog')}
 $('reviewButton').onclick=review;
-$('publish').onclick=async()=>{if(busy)return;if(!revision&&state.matches.some(m=>m.date===$('date').value&&m.opponent.toLowerCase()===$('opponent').value.trim().toLowerCase())&&!confirm('A match against this opponent on this date already exists. Publish a separate game?'))return;busy=true;$('publish').disabled=true;$('closeReview').disabled=true;$('workspace').classList.add('saving');$('workspace').querySelectorAll('input,button,select').forEach(n=>n.disabled=true);try{const p=payload(),result=await api('match','POST',p);revision=result.revision;changed=false;saveDraft();await refresh();render();closeDialog('reviewDialog');$('pageTitle').textContent='Match published';notice(result.message||'Match saved. Discord publication is queued.')}catch(e){notice(e.message,true);closeDialog('reviewDialog')}finally{busy=false;$('publish').disabled=false;$('closeReview').disabled=false;$('workspace').classList.remove('saving');$('workspace').querySelectorAll('input,button,select').forEach(n=>n.disabled=false)}};
-function reset(){mid=crypto.randomUUID();revision=0;players=[];picked='';changed=false;$('opponent').value='';$('date').value=new Date().toLocaleDateString('en-CA');$('ours').value=0;$('theirs').value=0;$('formation').value='3-1-2';$('competition').value='default';$('opponentOwnGoals').value=0;applyTheme();$('pageTitle').textContent='Record a match';render();$('saveState').textContent='New match draft';saveDraft()}
+$('publish').onclick=async()=>{if(busy)return;if(!revision&&state.matches.some(m=>m.date===$('date').value&&m.opponent.toLowerCase()===$('opponent').value.trim().toLowerCase())&&!confirm('A match against this opponent on this date already exists. Publish a separate game?'))return;busy=true;$('publish').disabled=true;$('closeReview').disabled=true;$('workspace').classList.add('saving');$('workspace').querySelectorAll('input,button,select').forEach(n=>n.disabled=true);try{const p=payload(),result=await api('match','POST',p);revision=result.revision;changed=false;saveDraft();await refresh();render();closeDialog('reviewDialog');$('pageTitle').textContent=archived?'Historical match saved':'Match published';notice(result.message||'Match saved. Discord publication is queued.')}catch(e){notice(e.message,true);closeDialog('reviewDialog')}finally{busy=false;$('publish').disabled=false;$('closeReview').disabled=false;$('workspace').classList.remove('saving');$('workspace').querySelectorAll('input,button,select').forEach(n=>n.disabled=false)}};
+function reset(){archived=false;mid=crypto.randomUUID();revision=0;players=[];picked='';changed=false;$('opponent').value='';$('date').value=new Date().toLocaleDateString('en-CA');$('ours').value=0;$('theirs').value=0;$('formation').value='3-1-2';$('competition').value='default';$('opponentOwnGoals').value=0;applyTheme();$('pageTitle').textContent='Record a match';render();$('saveState').textContent='New match draft';saveDraft()}
 $('new').onclick=async()=>{if(busy||changed&&!confirm('Start a new match and discard unsaved edits?'))return;try{const next=crypto.randomUUID();await api('action','POST',{action:'draft_started',match_id:next});reset();mid=next;saveDraft();window.scrollTo({top:0,behavior:'smooth'})}catch(e){notice(e.message,true)}};
-function restoreDraft(){try{let d=JSON.parse(localStorage.getItem(draftKey())||'null');if(!d){const legacy=JSON.parse(localStorage.getItem('nnscCompetitiveDraft')||'null');if(legacy?.changed)d={...legacy,id:legacy.mid,score:[Number(legacy.ours),Number(legacy.theirs)]}}if(!d||!Array.isArray(d.players))return;mid=d.id||d.mid;revision=d.revision||0;players=d.players.map(p=>({...defaults({id:p.id,roblox_username:p.name}),...p,id:String(p.id)}));changed=!!d.changed;$('opponent').value=d.opponent||'';$('date').value=d.date||new Date().toLocaleDateString('en-CA');$('ours').value=d.score?.[0]??0;$('theirs').value=d.score?.[1]??0;$('formation').value=formations[d.formation]?d.formation:'3-1-2';$('competition').value=themes[d.competition]?d.competition:'default';$('opponentOwnGoals').value=d.opponentOwnGoals??0;applyTheme();render();$('saveState').textContent=changed?'Recovered unsaved draft':'All changes published'}catch(e){notice('The previous browser draft could not be restored.',true)}}
-function renderHistory(){const q=$('historySearch').value.toLowerCase(),root=$('history');root.replaceChildren();for(const m of state.matches){if(!(m.date+' '+m.opponent).toLowerCase().includes(q))continue;const b=el('button',m.date+' · NNSC '+m.score.join('–')+' '+m.opponent);b.onclick=async()=>{if(busy||changed&&!confirm('Discard unsaved edits and open this match?'))return;try{await api('action','POST',{action:'match_opened',match_id:m.id});mid=m.id;revision=m.revision;players=m.players.map(p=>({...defaults({id:p.id,roblox_username:p.name}),...p,id:String(p.id)}));for(const key of ['opponent','date','formation'])$(key).value=m[key]||'3-1-2';$('ours').value=m.score[0];$('theirs').value=m.score[1];$('competition').value=themes[m.competition]?m.competition:'default';$('opponentOwnGoals').value=m.opponentOwnGoals??0;applyTheme();changed=false;picked='';render();saveDraft();$('pageTitle').textContent='Edit saved match';window.scrollTo({top:0,behavior:'smooth'});notice('Editing a saved match. Publishing will update its existing Discord post and totals.')}catch(e){notice(e.message,true)}};root.append(b)}if(!root.childElementCount)root.append(el('p','No saved matches found.','muted'))}
+function restoreDraft(){try{let d=JSON.parse(localStorage.getItem(draftKey())||'null');if(!d){const legacy=JSON.parse(localStorage.getItem('nnscCompetitiveDraft')||'null');if(legacy?.changed)d={...legacy,id:legacy.mid,score:[Number(legacy.ours),Number(legacy.theirs)]}}if(!d||!Array.isArray(d.players))return;mid=d.id||d.mid;revision=d.revision||0;archived=d.archived===true;players=d.players.map(p=>({...defaults({id:p.id,roblox_username:p.name}),...p,id:String(p.id)}));changed=!!d.changed;$('opponent').value=d.opponent||'';$('date').value=archived?(d.date||''):(d.date||new Date().toLocaleDateString('en-CA'));$('ours').value=d.score?.[0]??0;$('theirs').value=d.score?.[1]??0;$('formation').value=formations[d.formation]?d.formation:'3-1-2';$('competition').value=themes[d.competition]?d.competition:'default';$('opponentOwnGoals').value=d.opponentOwnGoals??0;applyTheme();render();$('saveState').textContent=changed?'Recovered unsaved draft':'All changes saved'}catch(e){notice('The previous browser draft could not be restored.',true)}}
+function renderHistory(){const q=$('historySearch').value.toLowerCase(),root=$('history');root.replaceChildren();for(const m of [...state.matches].sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id))){if(!(m.date+' '+m.opponent).toLowerCase().includes(q))continue;const b=el('button',m.date+' · NNSC '+m.score.join('–')+' '+m.opponent+(m.archived?' · Archive':''));b.onclick=async()=>{if(busy||changed&&!confirm('Discard unsaved edits and open this match?'))return;try{await api('action','POST',{action:'match_opened',match_id:m.id});mid=m.id;revision=m.revision;archived=m.archived===true;players=m.players.map(p=>({...defaults({id:p.id,roblox_username:p.name}),...p,id:String(p.id)}));for(const key of ['opponent','date','formation'])$(key).value=m[key]||'3-1-2';$('ours').value=m.score[0];$('theirs').value=m.score[1];$('competition').value=themes[m.competition]?m.competition:'default';$('opponentOwnGoals').value=m.opponentOwnGoals??0;applyTheme();changed=false;picked='';render();saveDraft();$('pageTitle').textContent='Edit saved match';window.scrollTo({top:0,behavior:'smooth'});notice(archived?'Editing a historical match. Current totals are excluded.':'Editing a saved match. Publishing will update its existing Discord post and totals.')}catch(e){notice(e.message,true)}};appendHistoryEntry(root,b,m)}if(!root.childElementCount)root.append(el('p','No saved matches found.','muted'))}
 $('historySearch').oninput=renderHistory;
 function renderTotals(){const root=$('leaders'),category=$('category').value;root.replaceChildren();for(const [id,total] of Object.entries(state.totals).filter(([id,t])=>t[category]>0).sort((a,b)=>b[1][category]-a[1][category])){const row=el('tr');row.append(el('td',profileById(id)?.roblox_username||id),el('td',String(total[category])));root.append(row)}if(!root.childElementCount){const row=el('tr');row.append(el('td','No recorded totals yet.'));root.append(row)}}$('category').onchange=renderTotals;
 function renderCorrectionPlayers(){const root=$('adjustPlayer'),value=root.value;if(document.activeElement===root)return;root.replaceChildren();for(const p of [...state.profiles].sort((a,b)=>a.roblox_username.localeCompare(b.roblox_username))){const option=el('option',p.roblox_username);option.value=p.id;root.append(option)}if([...root.options].some(x=>x.value===value))root.value=value}
 $('adjustForm').onsubmit=async e=>{e.preventDefault();if(busy)return;try{const result=await api('adjust','POST',{id:$('adjustPlayer').value,category:$('adjustCat').value,amount:Number($('adjustAmount').value),reason:$('reason').value});await refresh();notice(result.message)}catch(e){notice(e.message,true)}};
 $('export').onclick=async()=>{if(busy)return;try{await api('action','POST',{action:'image_export',match_id:mid});const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=1440;const ctx=canvas.getContext('2d');ctx.fillStyle=(themes[$('competition').value]||themes.default).bottom;ctx.fillRect(0,0,1200,1440);ctx.fillStyle='#f4f5f0';ctx.textAlign='center';ctx.font='bold 35px sans-serif';ctx.fillText('NNSC '+$('ours').value+' – '+$('theirs').value+' '+$('opponent').value,600,60,1120);ctx.font='22px sans-serif';ctx.fillText($('date').value+' · '+(themes[$('competition').value]||themes.default).name+' · Opponent OG: '+Number($('opponentOwnGoals').value),600,100);ctx.fillStyle='#284c3c';ctx.fillRect(35,140,1130,1000);ctx.strokeStyle='#71917b';ctx.strokeRect(50,155,1100,970);ctx.beginPath();ctx.moveTo(50,640);ctx.lineTo(1150,640);ctx.stroke();for(const p of players.filter(x=>x.position!=='SUB')){const point=coords[p.position];if(!point)continue;const x=35+point[0]*11.3,y=140+point[1]*10;ctx.fillStyle='#142b27';ctx.fillRect(x-150,y-25,300,100);ctx.fillStyle='#f4f5f0';ctx.font='bold 27px sans-serif';ctx.fillText(p.name,x,y+10,285);ctx.font='23px sans-serif';ctx.fillText(p.position+' · '+Number(p.rating).toFixed(1)+(p.motm?' ★':''),x,y+46)}ctx.font='23px sans-serif';players.filter(p=>p.position==='SUB').forEach((p,n)=>ctx.fillText(p.name+' · '+Number(p.rating).toFixed(1),600,1190+n*30,1100));const a=el('a');a.href=canvas.toDataURL();a.download='nnsc-'+mid+'.png';a.click();notice('Lineup image downloaded. Discord publishes the full avatar poster when you save the match.')}catch(e){notice(e.message,true)}};
+/* NNSC_MATCH_ARCHIVE */
+let archived=false, clipMatch='', clipBusy=false, clipLoad=0;
+const clipEndpoint=id=>'archive/clips/'+encodeURIComponent(id);
+function updateArchiveReview(){
+  $('publish').textContent=archived?'Save historical match':'Publish to Discord';
+  if(archived)$('reviewNote').textContent='Archive only. The match sheet is saved without adding goals, assists, MOTM, games or ratings to current totals.';
+}
+function renderArchiveEditor(){
+  $('historicalPlayerPanel').hidden=!archived;
+  if(archived){
+    $('editBadge').textContent=revision?'Historical match':'New historical match';
+    $('footerHint').textContent='Archive only · current totals stay the same.';
+  }
+  const saved=revision>0;
+  $('archiveClipForm').hidden=!saved;
+  $('archiveClipHint').textContent=saved?'Up to 10 MP4 clips, 25 MiB each. Players can revisit clips on the match anniversary.':'Save the match to add clips.';
+  if(clipMatch!==(saved?mid:'')){
+    clipMatch=saved?mid:'';
+    $('archiveClipForm').reset();
+    $('archiveClipList').replaceChildren();
+    $('archiveClipState').textContent='';
+    clipLoad++;
+    if(saved)loadClips();
+  }
+}
+$('newHistorical').onclick=async()=>{
+  if(busy||clipBusy||(changed&&!confirm('Discard unsaved edits and start a historical match?')))return;
+  reset();
+  archived=true;
+  $('date').value='';
+  $('pageTitle').textContent='Record a historical match';
+  mark();render();saveDraft();
+  $('date').focus();
+};
+$('addHistoricalPlayer').onclick=()=>{
+  if(!archived||busy)return;
+  const name=$('historicalRoblox').value.trim(),discord=$('historicalDiscord').value.trim();
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(name))return notice('Enter the player’s exact Roblox username.',true);
+  if(discord&&!/^[1-9][0-9]{16,18}$/.test(discord))return notice('Enter a valid Discord user ID, or leave it blank.',true);
+  const id=discord||'historical-'+name.toLowerCase();
+  if(players.some(p=>p.id===id||p.name.toLowerCase()===name.toLowerCase()))return notice('That player is already in the lineup.',true);
+  if(players.length>=40)return notice('This match can hold up to 40 players.',true);
+  players.push({...defaults({id,roblox_username:name}),historicalPlayer:true});
+  $('historicalRoblox').value='';$('historicalDiscord').value='';
+  mark();render();
+  notice(name+' added as a substitute. Pick their position in the lineup.');
+};
+function appendHistoryEntry(root,button,match){
+  const row=el('div',undefined,'archive-history-row');
+  row.append(button);
+  if(state.clip_counts?.[match.id]){
+    const clips=el('button','Clips');
+    clips.onclick=()=>openClipGallery(match.id);
+    row.append(clips);
+  }
+  root.append(row);
+}
+async function openClipGallery(id){
+  const tab=window.open('about:blank','_blank');
+  if(tab)tab.opener=null;
+  try{
+    const data=await api(clipEndpoint(id));
+    if(!data.url)throw Error('There are no clips for this match.');
+    if(tab)tab.location.replace(data.url);
+    else window.location.assign(data.url);
+  }catch(e){tab?.close();notice(e.message,true)}
+}
+async function loadClips(){
+  const id=clipMatch, key=++clipLoad;
+  if(!id)return;
+  try{
+    const data=await api(clipEndpoint(id));
+    if(id!==clipMatch||key!==clipLoad)return;
+    const root=$('archiveClipList');root.replaceChildren();
+    if(data.clips.length){
+      const watch=el('button','Watch clips');
+      watch.onclick=()=>openClipGallery(id);
+      root.append(watch);
+    }
+    for(const clip of data.clips){
+      const row=el('div',undefined,'archive-clip-row'),remove=el('button','Remove');
+      row.append(el('span',clip.title),remove);
+      remove.onclick=async()=>{
+        if(clipBusy||!confirm('Remove '+clip.title+' from this match?'))return;
+        clipBusy=true;remove.disabled=true;
+        try{
+          await api(clipEndpoint(id)+'/'+encodeURIComponent(clip.id)+'/remove','POST',{});
+          if(id===clipMatch)await loadClips();
+          await refresh();
+        }catch(e){notice(e.message,true)}
+        finally{clipBusy=false;remove.disabled=false}
+      };
+      root.append(row);
+    }
+  }catch(e){if(id===clipMatch&&key===clipLoad)$('archiveClipState').textContent=e.message}
+}
+$('archiveClipForm').onsubmit=async event=>{
+  event.preventDefault();
+  if(clipBusy||busy||!clipMatch)return;
+  const file=$('archiveClipFile').files[0],title=$('archiveClipTitle').value.trim(),id=clipMatch;
+  if(!file||!file.name.toLowerCase().endsWith('.mp4')||file.size>25*1024*1024)return notice('Choose an MP4 clip up to 25 MiB.',true);
+  clipBusy=true;$('archiveClipUpload').disabled=true;
+  $('archiveClipState').textContent='Uploading…';
+  try{
+    const r=await fetch(API+'/api/'+clipEndpoint(id)+'?title='+encodeURIComponent(title),{
+      method:'POST',headers:{'Content-Type':'video/mp4',Authorization:'Bearer '+session},body:file
+    });
+    const body=await r.text();
+    if(!r.ok){
+      let message=body;
+      try{message=JSON.parse(body).error||body}catch{}
+      throw Error(message||'The upload failed.');
+    }
+    if(id===clipMatch){
+      $('archiveClipForm').reset();
+      $('archiveClipState').textContent='Clip saved.';
+      await loadClips();
+    }
+    await refresh();
+  }catch(e){if(id===clipMatch)$('archiveClipState').textContent=e.message}
+  finally{clipBusy=false;$('archiveClipUpload').disabled=false}
+};
+$('openHistory').onclick=()=>{
+  $('historySection').open=true;
+  $('historySection').scrollIntoView({behavior:'smooth',block:'start'});
+};
+$('publishHistory').onclick=async()=>{
+  const button=$('publishHistory');
+  if(busy||clipBusy||!state.matches.length)return;
+  if(changed)return notice('Save the open match before publishing history.',true);
+  if(!confirm('Queue all saved matches from oldest to newest? If you want the Discord posts reordered, delete the old bot result messages in Discord first. Keep the saved matches here.'))return;
+  button.disabled=true;
+  try{const result=await api('archive/publish','POST',{confirm:true});notice(result.message)}
+  catch(e){notice(e.message,true)}
+  finally{button.disabled=false}
+};
+
 window.addEventListener('beforeunload',e=>{saveDraft();if(changed){e.preventDefault();e.returnValue=''}});setInterval(async()=>{if(!session||busy||document.hidden)return;try{await refresh()}catch(e){$('sync').textContent='Sync paused';notice(e.message,true)}},10000);
 reset();signIn();
 </script>
